@@ -14,7 +14,7 @@ function Row({ e }: { e: QualEntry }) {
   const gd = e.gd > 0 ? `+${e.gd}` : `${e.gd}`
   return (
     <div className={`grid grid-cols-[22px_1fr_auto] items-center gap-2 rounded-lg px-2 py-1.5 text-sm ${tone}`}>
-      <span className="font-mona text-center text-xs tabular-nums text-muted-foreground">{e.overall}</span>
+      <span className="font-mona text-center text-xs leading-none tabular-nums text-muted-foreground">{e.overall}</span>
       <span className="flex min-w-0 items-center gap-1.5">
         <span>{teamFlag(e.teamId)}</span>
         <span className="truncate">{teamName(e.teamId)}</span>
@@ -35,13 +35,15 @@ function PanelBody() {
   return (
     <div>
       <h2 className="mb-3 text-lg font-bold tracking-tight">진출 현황</h2>
+      {/* "위 순위 더보기" 느낌 — 1~24위(진출 확정)는 위쪽에 접혀 있음 */}
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="mb-1.5 flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold hover:border-primary"
+        className="mb-1 flex w-full items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs text-muted-foreground transition-colors hover:text-primary"
       >
-        <span className="text-muted-foreground">{expanded ? '▾' : '▸'}</span>
-        진출 확정 <span className="ml-auto font-normal text-muted-foreground">24팀</span>
+        <span className="leading-none">{expanded ? '▾' : '▴'}</span>
+        {expanded ? '1–24위 접기' : '1–24위 더보기'}
+        <span className="opacity-70">· 진출 확정</span>
       </button>
       {expanded && (
         <>
@@ -52,7 +54,12 @@ function PanelBody() {
       {bubble.map((e) => <Row key={e.teamId} e={e} />)}
       <div className="my-3 flex items-center gap-2.5">
         <span className="h-0.5 flex-1 rounded bg-gradient-to-r from-transparent to-primary" />
-        <span className="whitespace-nowrap text-xs font-extrabold text-primary" style={{ textShadow: '0 0 14px var(--accent-glow)' }}>32강 진출 컷</span>
+        <span
+          className="whitespace-nowrap text-xs font-extrabold text-primary"
+          style={{ textShadow: '0 0 14px var(--accent-glow)' }}
+        >
+          32강 진출
+        </span>
         <span className="h-0.5 flex-1 rounded bg-gradient-to-l from-transparent to-primary" />
       </div>
       {out.map((e) => <Row key={e.teamId} e={e} />)}
@@ -68,11 +75,15 @@ export function ThirdPlacePanel() {
         <PanelBody />
       </aside>
       <div className="lg:hidden">
-        <Button className="fixed bottom-4 right-4 z-30 rounded-full shadow-lg" onClick={() => setOpen((v) => !v)}>🥉 진출 현황</Button>
+        <Button className="fixed bottom-20 right-4 z-30 rounded-full shadow-lg" onClick={() => setOpen((v) => !v)}>
+          🥉 진출 현황
+        </Button>
         {open && (
-          <div className="fixed inset-x-3 bottom-3 z-30 max-h-[74vh] overflow-y-auto rounded-2xl border bg-background p-4 shadow-2xl">
+          <div className="fixed inset-x-3 bottom-3 z-40 max-h-[74vh] overflow-y-auto rounded-2xl border bg-background p-4 shadow-2xl">
             <PanelBody />
-            <Button variant="outline" className="mt-3 w-full" onClick={() => setOpen(false)}>닫기</Button>
+            <Button variant="outline" className="mt-3 w-full" onClick={() => setOpen(false)}>
+              닫기
+            </Button>
           </div>
         )}
       </div>

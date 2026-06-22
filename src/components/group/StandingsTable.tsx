@@ -20,9 +20,9 @@ export function StandingsTable({ rows }: { rows: TeamStanding[] }) {
             key={r.teamId}
             className={`border-t border-border ${i < 2 ? 'bg-primary/5' : i > 2 ? 'opacity-60' : ''}`}
           >
-            <td className="py-1.5 text-center">
+            <td className="py-1.5">
               <span
-                className={`font-mona inline-flex h-[18px] w-[18px] items-center justify-center rounded text-[11px] tabular-nums ${i < 2 ? 'bg-primary text-primary-foreground' : i === 2 ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}`}
+                className={`font-mona mx-auto flex h-[18px] w-[18px] items-center justify-center rounded text-[11px] leading-none tabular-nums ${i < 2 ? 'bg-primary text-primary-foreground' : i === 2 ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}`}
               >
                 {r.rank}
               </span>
