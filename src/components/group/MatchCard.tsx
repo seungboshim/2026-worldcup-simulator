@@ -18,7 +18,7 @@ export function MatchCard({ match }: { match: GroupMatch }) {
       className={`grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm transition-opacity ${filled ? '' : 'opacity-45'}`}
     >
       <span className="flex min-w-0 items-center justify-end gap-1.5">
-        <span className="font-mona truncate">{teamCode(match.homeId)}</span>
+        <span className="truncate">{teamCode(match.homeId)}</span>
         <span className="text-base leading-none">{teamFlag(match.homeId)}</span>
       </span>
       <span className="flex items-center gap-1">
@@ -32,7 +32,7 @@ export function MatchCard({ match }: { match: GroupMatch }) {
       </span>
       <span className="flex min-w-0 items-center gap-1.5">
         <span className="text-base leading-none">{teamFlag(match.awayId)}</span>
-        <span className="font-mona truncate">{teamCode(match.awayId)}</span>
+        <span className="truncate">{teamCode(match.awayId)}</span>
       </span>
     </div>
   )
