@@ -15,8 +15,13 @@ export function Simulator() {
   const filled = Object.values(scores).filter((v) => v != null).length
   const complete = total > 0 && filled >= total
 
+  const changeTab = (v: string) => {
+    setTab(v)
+    window.scrollTo({ top: 0 })
+  }
+
   return (
-    <Tabs value={tab} onValueChange={setTab}>
+    <Tabs value={tab} onValueChange={changeTab}>
       <TabsList>
         <TabsTrigger value="group">{t('tabGroup')}</TabsTrigger>
         <TabsTrigger value="knockout" disabled={!complete}>
@@ -24,7 +29,7 @@ export function Simulator() {
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="group">
+      <TabsContent value="group" className="min-w-0">
         <div className="flex gap-5 pb-24">
           <div className="min-w-0 flex-1">
             <GroupStage />
@@ -37,7 +42,7 @@ export function Simulator() {
           {complete ? (
             <button
               type="button"
-              onClick={() => setTab('knockout')}
+              onClick={() => changeTab('knockout')}
               className="pointer-events-auto rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 transition-transform hover:scale-105"
             >
               {t('next')} →
@@ -50,10 +55,10 @@ export function Simulator() {
         </div>
 
         {/* 모바일: 진출현황 알약 → 시트로 모프(진행도/다음 CTA 내장) */}
-        <QualMorphBar complete={complete} filled={filled} total={total} onNext={() => setTab('knockout')} />
+        <QualMorphBar complete={complete} filled={filled} total={total} onNext={() => changeTab('knockout')} />
       </TabsContent>
 
-      <TabsContent value="knockout">
+      <TabsContent value="knockout" className="min-w-0">
         <Bracket />
       </TabsContent>
     </Tabs>

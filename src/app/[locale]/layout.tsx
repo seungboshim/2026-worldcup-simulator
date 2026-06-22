@@ -76,7 +76,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning className="h-full antialiased">
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full">
         <ThemeScript />
         <I18nProvider locale={locale} dict={dict}>
           {children}
