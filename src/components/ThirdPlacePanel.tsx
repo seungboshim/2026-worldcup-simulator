@@ -228,7 +228,7 @@ export function QualMorphBar({
             </motion.div>
           ) : (
             // 겉: 진출 현황(→시트) 알약, 그 안에 다음으로(→다음) 버튼을 감싼 모양. 클릭영역은 단순 병렬.
-            <div className="flex items-center gap-3 py-2 pr-3 pl-5">
+            <div className="flex items-center gap-2 py-1.5 pr-1.5 pl-5">
               <button
                 type="button"
                 onClick={() => setOpen(true)}
@@ -236,13 +236,17 @@ export function QualMorphBar({
               >
                 🥉 {t('qualStatusButton')}
               </button>
-              {/* 펼친 시트 푸터와 동일 스타일: 미완료=회색 '예측한 경기 40/72', 완료=다음으로 버튼(작게) */}
+              {/* 넓은 데스크탑 플로팅 버튼과 동일 스타일(크기만 작게): 미완료=어두운 알약, 완료=녹색 알약 */}
               {complete ? (
-                <Button size="sm" className="rounded-full" onClick={() => onNext()}>
+                <button
+                  type="button"
+                  onClick={() => onNext()}
+                  className="whitespace-nowrap rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-transform hover:scale-105"
+                >
                   {t('next')} →
-                </Button>
+                </button>
               ) : (
-                <span className="whitespace-nowrap text-sm text-muted-foreground">
+                <span className="whitespace-nowrap rounded-full bg-foreground/85 px-4 py-2 text-sm font-semibold text-background">
                   {t('predictedMatches')} <span className="font-mona tabular-nums">{filled}/{total}</span>
                 </span>
               )}
