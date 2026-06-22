@@ -80,13 +80,14 @@ it('ranks 12 third-placed teams and flags top 8 as qualified', () => {
   expect(ranking[0].groupId).toBe('L')   // 강도 최댓값 조
 })
 
-it('ranks 36 teams by tier: winners 1-12, runners 13-24, thirds 25-36', () => {
+it('ranks 48 teams by tier: winners, runners, thirds (qual/elim), fourths', () => {
   const groups = ALL_LETTERS.map(makeGroup)
   const q = computeQualificationRanking(groups, strengthScores())
-  expect(q).toHaveLength(36)
+  expect(q).toHaveLength(48)
   expect(q.slice(0, 12).every((e) => e.tier === 1)).toBe(true)
   expect(q.slice(12, 24).every((e) => e.tier === 2)).toBe(true)
   expect(q.slice(24, 32).every((e) => e.tier === 3 && e.qualified)).toBe(true)
-  expect(q.slice(32).every((e) => e.tier === 4 && !e.qualified)).toBe(true)
+  expect(q.slice(32, 36).every((e) => e.tier === 4 && !e.qualified)).toBe(true)
+  expect(q.slice(36).every((e) => e.tier === 5 && !e.qualified)).toBe(true)
   expect(q[0].overall).toBe(1)
 })

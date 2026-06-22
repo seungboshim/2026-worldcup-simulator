@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useSimulator } from '@/store/useSimulator'
 import { selectQualificationRanking } from '@/store/selectors'
@@ -9,11 +9,12 @@ import { Button } from '@/components/ui/button'
 import { useT } from '@/i18n/useT'
 import type { DictKey } from '@/i18n/dictionaries'
 
-const tierKey = (tier: number): DictKey => (tier === 1 ? 'pos1' : tier === 2 ? 'pos2' : 'pos3')
+const tierKey = (tier: number): DictKey =>
+  tier === 1 ? 'pos1' : tier === 2 ? 'pos2' : tier === 5 ? 'pos4' : 'pos3'
 
 function Row({ e }: { e: QualEntry }) {
   const { t, locale } = useT()
-  // 진출(1~32)은 동일하게, 미진출(33~36)만 흐림. 컷 라인이 경계를 표시.
+  // 진출(1~32)은 동일하게, 미진출(33~48)만 흐림. 컷 라인이 경계를 표시.
   const tone = e.overall <= 32 ? '' : 'opacity-40'
   const gd = e.gd > 0 ? `+${e.gd}` : `${e.gd}`
   return (
@@ -29,34 +30,55 @@ function Row({ e }: { e: QualEntry }) {
   )
 }
 
+function Toggle({ open, onClick, more, less, suffix, dir }: {
+  open: boolean
+  onClick: () => void
+  more: DictKey
+  less: DictKey
+  suffix: DictKey
+  dir: 'up' | 'down'
+}) {
+  const { t } = useT()
+  const chevron = dir === 'up' ? (open ? '▾' : '▴') : open ? '▴' : '▾'
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="my-1 flex w-full items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs text-muted-foreground transition-colors hover:text-primary"
+    >
+      <span className="leading-none">{chevron}</span>
+      {open ? t(less) : t(more)}
+      <span className="opacity-70">· {t(suffix)}</span>
+    </button>
+  )
+}
+
 export function QualPanelBody() {
   const { t } = useT()
   const scores = useSimulator((s) => s.scores)
-  const [expanded, setExpanded] = useState(false)
+  const [expandedTop, setExpandedTop] = useState(false)
+  const [expandedBottom, setExpandedBottom] = useState(false)
   const all = selectQualificationRanking(scores)
-  const auto = all.slice(0, 24)
-  const bubble = all.slice(24, 32)
-  const out = all.slice(32)
+  const auto = all.slice(0, 24) // 1~24 진출 확정
+  const bubble = all.slice(24, 32) // 25~32 조 3위 막차
+  const elim = all.slice(32, 36) // 33~36 미진출 조 3위
+  const fourths = all.slice(36) // 37~48 조 4위
+
   return (
     <div>
       <h2 className="mb-3 text-lg font-bold tracking-tight">{t('qualStatus')}</h2>
-      {/* "위 순위 더보기" 느낌 — 1~24위(진출 확정)는 위쪽에 접혀 있음 */}
-      <button
-        type="button"
-        onClick={() => setExpanded((v) => !v)}
-        className="mb-1 flex w-full items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs text-muted-foreground transition-colors hover:text-primary"
-      >
-        <span className="leading-none">{expanded ? '▾' : '▴'}</span>
-        {expanded ? t('showRanksLess') : t('showRanksMore')}
-        <span className="opacity-70">· {t('confirmedSuffix')}</span>
-      </button>
-      {expanded && (
+
+      {/* 위쪽: 1~24위(진출 확정) 더보기 */}
+      <Toggle open={expandedTop} onClick={() => setExpandedTop((v) => !v)} more="showRanksMore" less="showRanksLess" suffix="confirmedSuffix" dir="up" />
+      {expandedTop && (
         <>
           {auto.map((e) => <Row key={e.teamId} e={e} />)}
           <div className="my-2.5 h-px bg-border" />
         </>
       )}
+
       {bubble.map((e) => <Row key={e.teamId} e={e} />)}
+
       <div className="my-3 flex items-center gap-2.5">
         <span className="h-0.5 flex-1 rounded bg-gradient-to-r from-transparent to-primary" />
         <span
@@ -67,7 +89,12 @@ export function QualPanelBody() {
         </span>
         <span className="h-0.5 flex-1 rounded bg-gradient-to-l from-transparent to-primary" />
       </div>
-      {out.map((e) => <Row key={e.teamId} e={e} />)}
+
+      {elim.map((e) => <Row key={e.teamId} e={e} />)}
+
+      {/* 아래쪽: 37~48위(조 4위, 탈락) 더보기 */}
+      <Toggle open={expandedBottom} onClick={() => setExpandedBottom((v) => !v)} more="showFourthMore" less="showFourthLess" suffix="eliminatedSuffix" dir="down" />
+      {expandedBottom && fourths.map((e) => <Row key={e.teamId} e={e} />)}
     </div>
   )
 }
@@ -95,6 +122,17 @@ export function QualMorphBar({
 }) {
   const { t } = useT()
   const [open, setOpen] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [fade, setFade] = useState({ top: false, bottom: false })
+
+  const recomputeFade = useCallback(() => {
+    const el = scrollRef.current
+    if (!el) return
+    setFade({
+      top: el.scrollTop > 4,
+      bottom: el.scrollTop + el.clientHeight < el.scrollHeight - 4,
+    })
+  }, [])
 
   useEffect(() => {
     if (!open) return
@@ -104,6 +142,17 @@ export function QualMorphBar({
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    const el = scrollRef.current
+    if (!el) return
+    recomputeFade()
+    const ro = new ResizeObserver(recomputeFade)
+    ro.observe(el)
+    if (el.firstElementChild) ro.observe(el.firstElementChild)
+    return () => ro.disconnect()
+  }, [open, recomputeFade])
 
   return (
     <div className="lg:hidden">
@@ -123,6 +172,8 @@ export function QualMorphBar({
       <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-3">
         <motion.div
           layout
+          role={open ? 'dialog' : undefined}
+          aria-modal={open || undefined}
           transition={{ layout: { duration: 0.42, ease: [0.16, 1, 0.3, 1] } }}
           className={`overflow-hidden border shadow-2xl ${
             open
@@ -140,10 +191,21 @@ export function QualMorphBar({
               <div className="flex shrink-0 justify-center pt-3 pb-1">
                 <div className="h-1.5 w-10 rounded-full bg-border" />
               </div>
-              <div className="min-h-0 flex-1 overflow-y-auto px-4">
-                <QualPanelBody />
+
+              {/* 스크롤 영역 + 양끝 fade gradient (스크롤 가능할 때만) */}
+              <div className="relative min-h-0 flex-1">
+                {fade.top && (
+                  <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-6 bg-gradient-to-b from-background to-transparent" />
+                )}
+                <div ref={scrollRef} onScroll={recomputeFade} className="h-full overflow-y-auto px-4">
+                  <QualPanelBody />
+                </div>
+                {fade.bottom && (
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-6 bg-gradient-to-t from-background to-transparent" />
+                )}
               </div>
-              <div className="flex shrink-0 items-center gap-2 border-t p-3">
+
+              <div className="flex shrink-0 items-center gap-2 p-3">
                 <Button variant="outline" className="flex-1" onClick={() => setOpen(false)}>
                   {t('qualClose')}
                 </Button>

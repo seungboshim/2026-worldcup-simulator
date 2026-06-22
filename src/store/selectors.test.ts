@@ -14,8 +14,8 @@ it('returns 12 third-place entries', () => {
   expect(selectThirdPlaceRanking(empty)).toHaveLength(12)
 })
 
-it('returns 36 qualification entries, top 32 qualified', () => {
+it('returns 48 qualification entries, top 32 qualified', () => {
   const q = selectQualificationRanking(empty)
-  expect(q).toHaveLength(36)
+  expect(q).toHaveLength(48)
   expect(q.filter((e) => e.qualified)).toHaveLength(32)
 })
