@@ -1,4 +1,4 @@
-import type { GroupMatch, ScoreMap } from '@/types'
+import type { GroupMatch, ScoreMap, GroupId } from '@/types'
 
 export interface TeamStanding {
   teamId: string
@@ -49,4 +49,71 @@ export function computeGroupStandings(
   )
   table.forEach((r, i) => (r.rank = i + 1))
   return table
+}
+
+export interface GroupInput {
+  groupId: GroupId
+  teamIds: string[]
+  matches: GroupMatch[]
+}
+
+export interface ThirdPlaceEntry {
+  teamId: string
+  groupId: GroupId
+  points: number
+  gd: number
+  gf: number
+  rankAmongThirds: number
+  qualified: boolean
+}
+
+export function computeThirdPlaceRanking(
+  groups: GroupInput[],
+  scores: ScoreMap,
+): ThirdPlaceEntry[] {
+  const thirds: ThirdPlaceEntry[] = groups.map((g) => {
+    const table = computeGroupStandings(g.teamIds, g.matches, scores)
+    const third = table[2]
+    return { teamId: third.teamId, groupId: g.groupId, points: third.points, gd: third.gd, gf: third.gf, rankAmongThirds: 0, qualified: false }
+  })
+  thirds.sort((a, b) => b.points - a.points || b.gd - a.gd || b.gf - a.gf || a.groupId.localeCompare(b.groupId))
+  thirds.forEach((t, i) => { t.rankAmongThirds = i + 1; t.qualified = i < 8 })
+  return thirds
+}
+
+export interface QualEntry {
+  teamId: string
+  groupId: GroupId
+  points: number
+  gd: number
+  gf: number
+  tier: 1 | 2 | 3 | 4   // 1=조1위, 2=조2위, 3=진출 3위, 4=미진출 3위
+  overall: number       // 1..36
+  qualified: boolean    // overall <= 32
+}
+
+export function computeQualificationRanking(
+  groups: GroupInput[],
+  scores: ScoreMap,
+): QualEntry[] {
+  const cmp = (a: { points: number; gd: number; gf: number; groupId: GroupId },
+               b: { points: number; gd: number; gf: number; groupId: GroupId }) =>
+    b.points - a.points || b.gd - a.gd || b.gf - a.gf || a.groupId.localeCompare(b.groupId)
+
+  const winners: Omit<QualEntry, 'overall' | 'qualified'>[] = []
+  const runners: Omit<QualEntry, 'overall' | 'qualified'>[] = []
+  for (const g of groups) {
+    const t = computeGroupStandings(g.teamIds, g.matches, scores)
+    winners.push({ teamId: t[0].teamId, groupId: g.groupId, points: t[0].points, gd: t[0].gd, gf: t[0].gf, tier: 1 })
+    runners.push({ teamId: t[1].teamId, groupId: g.groupId, points: t[1].points, gd: t[1].gd, gf: t[1].gf, tier: 2 })
+  }
+  winners.sort(cmp); runners.sort(cmp)
+
+  const thirds = computeThirdPlaceRanking(groups, scores)
+  const mapThird = (t: ThirdPlaceEntry, tier: 3 | 4): Omit<QualEntry, 'overall' | 'qualified'> =>
+    ({ teamId: t.teamId, groupId: t.groupId, points: t.points, gd: t.gd, gf: t.gf, tier })
+  const tier3 = thirds.filter((t) => t.qualified).map((t) => mapThird(t, 3))
+  const tier4 = thirds.filter((t) => !t.qualified).map((t) => mapThird(t, 4))
+
+  return [...winners, ...runners, ...tier3, ...tier4].map((e, i) => ({ ...e, overall: i + 1, qualified: i < 32 }))
 }
