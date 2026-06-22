@@ -9,8 +9,8 @@ import { Button } from '@/components/ui/button'
 const tierLabel = (t: number) => (t === 1 ? '1위' : t === 2 ? '2위' : '3위')
 
 function Row({ e }: { e: QualEntry }) {
-  // 1~24 확정(차분) / 25~32 막차(녹색 음영) / 33~36 미진출(흐림). 아이콘 없이 음영만.
-  const tone = e.overall <= 24 ? '' : e.overall <= 32 ? 'bg-primary/10' : 'opacity-40'
+  // 진출(1~32)은 동일하게, 미진출(33~36)만 흐림. 컷 라인이 경계를 표시.
+  const tone = e.overall <= 32 ? '' : 'opacity-40'
   const gd = e.gd > 0 ? `+${e.gd}` : `${e.gd}`
   return (
     <div className={`grid grid-cols-[22px_1fr_auto] items-center gap-2 rounded-lg px-2 py-1.5 text-sm ${tone}`}>
