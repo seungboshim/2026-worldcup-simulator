@@ -1,6 +1,6 @@
 export type GroupId = 'A'|'B'|'C'|'D'|'E'|'F'|'G'|'H'|'I'|'J'|'K'|'L'
 
-export interface Team { id: string; name: string; flagCode: string; groupId: GroupId } // name=한글, flagCode=소문자 ISO2
+export interface Team { id: string; name: string; nameEn: string; flagCode: string; groupId: GroupId } // name=한글, nameEn=영문, flagCode=소문자 ISO2
 
 export interface GroupMatch {
   id: string; groupId: GroupId; homeId: string; awayId: string

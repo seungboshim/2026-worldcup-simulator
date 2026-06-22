@@ -5,10 +5,13 @@ import { selectQualificationRanking } from '@/store/selectors'
 import type { QualEntry } from '@/lib/standings'
 import { teamFlag, teamName } from '@/lib/teams'
 import { Button } from '@/components/ui/button'
+import { useT } from '@/i18n/useT'
+import type { DictKey } from '@/i18n/dictionaries'
 
-const tierLabel = (t: number) => (t === 1 ? '1위' : t === 2 ? '2위' : '3위')
+const tierKey = (tier: number): DictKey => (tier === 1 ? 'pos1' : tier === 2 ? 'pos2' : 'pos3')
 
 function Row({ e }: { e: QualEntry }) {
+  const { t, locale } = useT()
   // 진출(1~32)은 동일하게, 미진출(33~36)만 흐림. 컷 라인이 경계를 표시.
   const tone = e.overall <= 32 ? '' : 'opacity-40'
   const gd = e.gd > 0 ? `+${e.gd}` : `${e.gd}`
@@ -17,8 +20,8 @@ function Row({ e }: { e: QualEntry }) {
       <span className="font-mona text-center text-xs leading-none tabular-nums text-muted-foreground">{e.overall}</span>
       <span className="flex min-w-0 items-center gap-1.5">
         <span>{teamFlag(e.teamId)}</span>
-        <span className="truncate">{teamName(e.teamId)}</span>
-        <span className="font-mona text-[11px] text-muted-foreground">{e.groupId} {tierLabel(e.tier)}</span>
+        <span className="truncate">{teamName(e.teamId, locale)}</span>
+        <span className="font-mona text-[11px] text-muted-foreground">{e.groupId} {t(tierKey(e.tier))}</span>
       </span>
       <span className="font-mona text-xs tabular-nums text-muted-foreground">{e.points}pt {gd}</span>
     </div>
@@ -26,6 +29,7 @@ function Row({ e }: { e: QualEntry }) {
 }
 
 function PanelBody() {
+  const { t } = useT()
   const scores = useSimulator((s) => s.scores)
   const [expanded, setExpanded] = useState(false)
   const all = selectQualificationRanking(scores)
@@ -34,7 +38,7 @@ function PanelBody() {
   const out = all.slice(32)
   return (
     <div>
-      <h2 className="mb-3 text-lg font-bold tracking-tight">진출 현황</h2>
+      <h2 className="mb-3 text-lg font-bold tracking-tight">{t('qualStatus')}</h2>
       {/* "위 순위 더보기" 느낌 — 1~24위(진출 확정)는 위쪽에 접혀 있음 */}
       <button
         type="button"
@@ -42,8 +46,8 @@ function PanelBody() {
         className="mb-1 flex w-full items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs text-muted-foreground transition-colors hover:text-primary"
       >
         <span className="leading-none">{expanded ? '▾' : '▴'}</span>
-        {expanded ? '1–24위 접기' : '1–24위 더보기'}
-        <span className="opacity-70">· 진출 확정</span>
+        {expanded ? t('showRanksLess') : t('showRanksMore')}
+        <span className="opacity-70">· {t('confirmedSuffix')}</span>
       </button>
       {expanded && (
         <>
@@ -58,7 +62,7 @@ function PanelBody() {
           className="whitespace-nowrap text-xs font-extrabold text-primary"
           style={{ textShadow: '0 0 14px var(--accent-glow)' }}
         >
-          32강 진출
+          {t('cutLabel')}
         </span>
         <span className="h-0.5 flex-1 rounded bg-gradient-to-l from-transparent to-primary" />
       </div>
@@ -68,6 +72,7 @@ function PanelBody() {
 }
 
 export function ThirdPlacePanel() {
+  const { t } = useT()
   const [open, setOpen] = useState(false)
   return (
     <>
@@ -76,13 +81,13 @@ export function ThirdPlacePanel() {
       </aside>
       <div className="lg:hidden">
         <Button className="fixed bottom-20 right-4 z-30 rounded-full shadow-lg" onClick={() => setOpen((v) => !v)}>
-          🥉 진출 현황
+          🥉 {t('qualStatusButton')}
         </Button>
         {open && (
           <div className="fixed inset-x-3 bottom-3 z-40 max-h-[74vh] overflow-y-auto rounded-2xl border bg-background p-4 shadow-2xl">
             <PanelBody />
             <Button variant="outline" className="mt-3 w-full" onClick={() => setOpen(false)}>
-              닫기
+              {t('qualClose')}
             </Button>
           </div>
         )}

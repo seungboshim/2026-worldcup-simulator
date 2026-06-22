@@ -1,5 +1,6 @@
 import data from '../../data/worldcup-2026.json'
 import type { Team, WorldCupData } from '@/types'
+import type { Locale } from '@/i18n/config'
 
 const wc = data as unknown as WorldCupData
 const byId = new Map(wc.teams.map((t) => [t.id, t]))
@@ -15,8 +16,10 @@ export function getTeam(id?: string | null): Team | undefined {
   return id ? byId.get(id) : undefined
 }
 
-export function teamName(id?: string | null): string {
-  return getTeam(id)?.name ?? '미정'
+export function teamName(id?: string | null, locale: Locale = 'ko'): string {
+  const team = getTeam(id)
+  if (!team) return locale === 'en' ? 'TBD' : '미정'
+  return locale === 'en' ? team.nameEn : team.name
 }
 
 export function teamFlag(id?: string | null): string {

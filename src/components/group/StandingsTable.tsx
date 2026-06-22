@@ -1,17 +1,19 @@
 'use client'
 import type { TeamStanding } from '@/lib/standings'
 import { teamFlag, teamName } from '@/lib/teams'
+import { useT } from '@/i18n/useT'
 
 export function StandingsTable({ rows }: { rows: TeamStanding[] }) {
+  const { t, locale } = useT()
   return (
     <table className="w-full text-xs">
       <thead className="text-muted-foreground">
         <tr>
           <th className="w-[26px]"></th>
-          <th className="text-left font-medium">팀</th>
-          <th className="font-medium">경기</th>
-          <th className="font-medium">득실</th>
-          <th className="font-medium">승점</th>
+          <th className="text-left font-medium">{t('thTeam')}</th>
+          <th className="font-medium">{t('thPlayed')}</th>
+          <th className="font-medium">{t('thGd')}</th>
+          <th className="font-medium">{t('thPts')}</th>
         </tr>
       </thead>
       <tbody>
@@ -29,7 +31,7 @@ export function StandingsTable({ rows }: { rows: TeamStanding[] }) {
             </td>
             <td className="flex items-center gap-1.5 py-1.5">
               <span>{teamFlag(r.teamId)}</span>
-              <span className="truncate">{teamName(r.teamId)}</span>
+              <span className="truncate">{teamName(r.teamId, locale)}</span>
             </td>
             <td className="text-center tabular-nums">{r.played}</td>
             <td className="text-center tabular-nums">{r.gd > 0 ? `+${r.gd}` : r.gd}</td>

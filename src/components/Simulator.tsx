@@ -5,8 +5,10 @@ import { GroupStage } from '@/components/group/GroupStage'
 import { Bracket } from '@/components/knockout/Bracket'
 import { ThirdPlacePanel } from '@/components/ThirdPlacePanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useT } from '@/i18n/useT'
 
 export function Simulator() {
+  const { t } = useT()
   const [tab, setTab] = useState('group')
   const scores = useSimulator((s) => s.scores)
   const total = Object.keys(scores).length
@@ -16,9 +18,9 @@ export function Simulator() {
   return (
     <Tabs value={tab} onValueChange={setTab}>
       <TabsList>
-        <TabsTrigger value="group">조별리그</TabsTrigger>
+        <TabsTrigger value="group">{t('tabGroup')}</TabsTrigger>
         <TabsTrigger value="knockout" disabled={!complete}>
-          토너먼트
+          {t('tabKnockout')}
         </TabsTrigger>
       </TabsList>
 
@@ -38,11 +40,11 @@ export function Simulator() {
               onClick={() => setTab('knockout')}
               className="pointer-events-auto rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 transition-transform hover:scale-105"
             >
-              다음으로 →
+              {t('next')} →
             </button>
           ) : (
             <div className="pointer-events-auto rounded-full bg-foreground/85 px-6 py-3 text-sm font-semibold text-background shadow-lg backdrop-blur">
-              예측한 경기 <span className="font-mona tabular-nums">{filled}/{total}</span>
+              {t('predictedMatches')} <span className="font-mona tabular-nums">{filled}/{total}</span>
             </div>
           )}
         </div>
