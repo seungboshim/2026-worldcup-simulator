@@ -228,7 +228,7 @@ export function QualMorphBar({
             </motion.div>
           ) : (
             // 겉: 진출 현황(→시트) 알약, 그 안에 다음으로(→다음) 버튼을 감싼 모양. 클릭영역은 단순 병렬.
-            <div className="flex items-center gap-2 py-1.5 pr-1.5 pl-5">
+            <div className="flex items-center gap-5 py-1.5 pr-1.5 pl-5">
               <button
                 type="button"
                 onClick={() => setOpen(true)}
