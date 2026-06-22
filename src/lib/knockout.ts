@@ -44,3 +44,35 @@ export function seedKnockout(
       awayTeamId: resolveSource(m.awaySource),
     }))
 }
+
+export function advanceBracket(
+  bracket: KnockoutMatch[],
+  r32Resolved: ResolvedMatch[],
+  winners: Record<string, string | null>,
+): ResolvedMatch[] {
+  const resolved = new Map<string, ResolvedMatch>()
+  for (const m of r32Resolved) resolved.set(m.id, m)
+
+  const roundOrder: KnockoutMatch['round'][] = ['R32', 'R16', 'QF', 'SF', 'F']
+  const teamOf = (matchId: string): string | null => {
+    const m = resolved.get(matchId)
+    if (!m) return null
+    return winners[matchId] ?? null
+  }
+
+  const resolveSource = (src: KnockoutMatch['homeSource']): string | null => {
+    if (src.type === 'winnerOf') return teamOf(src.matchId)
+    return null
+  }
+
+  for (const round of roundOrder.slice(1)) {
+    for (const m of bracket.filter((b) => b.round === round)) {
+      resolved.set(m.id, {
+        ...m,
+        homeTeamId: resolveSource(m.homeSource),
+        awayTeamId: resolveSource(m.awaySource),
+      })
+    }
+  }
+  return [...resolved.values()]
+}
