@@ -1,7 +1,7 @@
 'use client'
 import type { GroupMatch } from '@/types'
 import { useSimulator } from '@/store/useSimulator'
-import { teamFlag, teamName } from '@/lib/teams'
+import { teamFlag, teamAbbr } from '@/lib/teams'
 import { useT } from '@/i18n/useT'
 
 export function MatchCard({ match }: { match: GroupMatch }) {
@@ -18,7 +18,7 @@ export function MatchCard({ match }: { match: GroupMatch }) {
       className={`grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm transition-opacity ${filled ? '' : 'opacity-45'}`}
     >
       <span className="flex min-w-0 items-center justify-end gap-1.5">
-        <span className="truncate">{teamName(match.homeId, locale)}</span>
+        <span className="truncate">{teamAbbr(match.homeId, locale)}</span>
         <span className="text-base leading-none">{teamFlag(match.homeId)}</span>
       </span>
       <span className="flex items-center gap-1">
@@ -32,7 +32,7 @@ export function MatchCard({ match }: { match: GroupMatch }) {
       </span>
       <span className="flex min-w-0 items-center gap-1.5">
         <span className="text-base leading-none">{teamFlag(match.awayId)}</span>
-        <span className="truncate">{teamName(match.awayId, locale)}</span>
+        <span className="truncate">{teamAbbr(match.awayId, locale)}</span>
       </span>
     </div>
   )

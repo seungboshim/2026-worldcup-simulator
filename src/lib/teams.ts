@@ -22,6 +22,13 @@ export function teamName(id?: string | null, locale: Locale = 'ko'): string {
   return locale === 'en' ? team.nameEn : team.name
 }
 
+// 좁은 영역용: 영어는 3글자 약어(팀 id), 한글은 풀네임 그대로.
+export function teamAbbr(id?: string | null, locale: Locale = 'ko'): string {
+  const team = getTeam(id)
+  if (!team) return locale === 'en' ? 'TBD' : '미정'
+  return locale === 'en' ? team.id : team.name
+}
+
 export function teamFlag(id?: string | null): string {
   const team = getTeam(id)
   if (!team) return '🏳️'

@@ -1,7 +1,7 @@
 'use client'
 import type { ResolvedMatch } from '@/lib/knockout'
 import { useSimulator } from '@/store/useSimulator'
-import { teamFlag, teamName } from '@/lib/teams'
+import { teamFlag, teamAbbr } from '@/lib/teams'
 import { useT } from '@/i18n/useT'
 import type { Locale } from '@/i18n/config'
 
@@ -29,7 +29,7 @@ function Slot({
       className={`flex w-full items-center gap-2 px-2.5 py-2 text-left text-sm transition-colors ${isWinner ? 'bg-primary font-semibold text-primary-foreground' : 'hover:bg-accent'}`}
     >
       <span>{teamFlag(teamId)}</span>
-      <span className="truncate">{teamName(teamId, locale)}</span>
+      <span className="truncate">{teamAbbr(teamId, locale)}</span>
     </button>
   )
 }

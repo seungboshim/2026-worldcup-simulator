@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useSimulator } from '@/store/useSimulator'
 import { selectQualificationRanking } from '@/store/selectors'
 import type { QualEntry } from '@/lib/standings'
-import { teamFlag, teamName } from '@/lib/teams'
+import { teamFlag, teamAbbr } from '@/lib/teams'
 import { Button } from '@/components/ui/button'
 import { useT } from '@/i18n/useT'
 import type { DictKey } from '@/i18n/dictionaries'
@@ -20,7 +20,7 @@ function Row({ e }: { e: QualEntry }) {
       <span className="font-mona text-center text-xs leading-none tabular-nums text-muted-foreground">{e.overall}</span>
       <span className="flex min-w-0 items-center gap-1.5">
         <span>{teamFlag(e.teamId)}</span>
-        <span className="truncate">{teamName(e.teamId, locale)}</span>
+        <span className="truncate">{teamAbbr(e.teamId, locale)}</span>
         <span className="font-mona text-[11px] text-muted-foreground">{e.groupId} {t(tierKey(e.tier))}</span>
       </span>
       <span className="font-mona text-xs tabular-nums text-muted-foreground">{e.points}pt {gd}</span>
