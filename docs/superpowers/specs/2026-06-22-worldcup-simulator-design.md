@@ -64,6 +64,14 @@
 12개 조의 3위팀을 모아 FIFA 순서로 정렬, **상위 8팀에 진출 플래그**.
 나머지 4팀은 탈락 플래그.
 
+### 3.2b `computeQualificationRanking(groups, scores)`
+"진출 현황" 패널용. 36개 팀(각 조 1·2·3위)을 **티어 순서**로 나열:
+- 1~12위: 각 조 1위(승점·득실 순 정렬, tier 1)
+- 13~24위: 각 조 2위(tier 2)
+- 25~32위: 조 3위 중 상위 8팀(tier 3, 막차)
+- 33~36위: 조 3위 중 미진출 4팀(tier 4)
+각 팀에 `overall`(1~36), `tier`, `qualified`(overall ≤ 32) 부여. `computeGroupStandings` + `computeThirdPlaceRanking` 재사용.
+
 ### 3.3 `seedKnockout(standings, thirdPlaceRanking)`
 R32 16경기 대진을 공식 구조로 생성.
 2026 포맷의 핵심 난점: "어느 조 3위가 어느 R32 슬롯으로 가는지"가 **진출한 3위팀들의 조 조합**에 따라 결정되는 공식 배정표를 정확히 구현해야 한다.
@@ -95,16 +103,29 @@ R32 16경기 대진을 공식 구조로 생성.
 
 - **조별리그 탭**: 12개 조 그리드. 각 조 = 경기 카드(스코어 +/− stepper) + 실시간 순위표.
 - **토너먼트 탭**: 브래킷. R32부터 경기 클릭 → 승자 선택(승패만). 조별리그 결과에서 자동 시드.
-- **Floating 3위 패널**: 12팀 랭킹, 상위 8 진출(✅)/탈락(❌). 스코어 변동 시 실시간 갱신.
-  - 데스크탑: 우측 sticky 패널.
-  - 모바일: 하단 시트(FAB로 토글).
+- **Floating "진출 현황" 패널** (`computeQualificationRanking` 기반): 32강 진출 32팀 + 미진출 조 3위를 한눈에. 스코어 변동 시 실시간 갱신.
+  - 1~24위(조 1·2위, 진출 확정)는 **기본 접힘** — `▸ 진출 확정 24팀` 토글. 펼치면 24/25위 사이 **구분선**(1px).
+  - 25~32위(조 3위 막차 8팀)는 **녹색 강조 음영**.
+  - `── 32강 진출 컷 ──` 글로우 라인(이 앱의 시그니처).
+  - 33~36위(미진출 조 3위)는 **흐린 음영**.
+  - ✅/❌ 아이콘 없이 **음영만으로 구분**. 부연 설명 문구 없음.
+  - 데스크탑: 우측 sticky 패널 / 모바일: 하단 시트(FAB로 토글).
 
 ---
 
-## 5. 테마
+## 5. 테마 & 서체
 
-- 키컬러 녹색. **라이트=짙은 녹색, 다크=밝은 녹색.**
+**색**
+- 키컬러 녹색. **라이트=짙은 녹색(`#0B5D2E`), 다크=밝은 녹색(`#36D27E`).**
 - CSS 변수 + Tailwind + shadcn 토큰. `next-themes`로 토글, `prefers-color-scheme` 기본값.
+- 컬러 토큰: `ground / panel / text / muted / line / accent / accent-soft / accent-contrast / board / board-ink / cut`. 라이트↔다크 반전.
+
+**서체 — 역할 분리(확정)**
+- **본문·테이블·UI = Wanted Sans** (가독성 담당, weight 400/600/700). 위계는 *크기 + 굵기·색*으로, 좁은 스케일.
+- **포인트 = Mona12 픽셀** (전광판/레트로): 헤더 타이틀, **스코어보드 LED 숫자**, **그룹 순위 등수 배지**, 우승 팀명. 좁은 면적에만.
+- 둘 다 `@font-face`로 **self-host**(`public/fonts/`). Wanted Sans v1.0.3 static woff2(complete), Mona12는 `mona.css`의 Mona12/Mona12-Bold woff2.
+- 한글은 Mona12에 `font-feature-settings:"locl" 1; font-language-override:"KOR "` 적용.
+- **금지**: 작은 대문자 + 넓은 자간(letter-spacing) eyebrow/라벨, 불필요한 부연 설명 문구 (AI generated 느낌).
 
 ---
 

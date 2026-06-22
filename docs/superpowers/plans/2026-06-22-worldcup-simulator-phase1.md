@@ -1572,6 +1572,200 @@ git commit -m "feat: app shell with tabs, header, reset — wire all components"
 
 ---
 
+## Design Lock 보강 (2026-06-22) — 서체·진출현황 확정
+
+> 디자인 시안 합의 결과. **Task 9의 Pretendard 언급과 Task 11의 "3위 랭킹 패널" 구조를 이 섹션이 대체한다.**
+
+### A. 서체 self-host (Task 9에 통합)
+
+`public/fonts/`에 woff2 복사:
+- **Wanted Sans v1.0.3** static complete: `WantedSans-Regular.woff2`(400) · `-SemiBold.woff2`(600) · `-Bold.woff2`(700)
+  출처 `https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@1.0.3/packages/wanted-sans/fonts/webfonts/static/complete/woff2/`
+- **Mona12**: `Mona12.woff2`(400) · `Mona12-Bold.woff2`(700)
+  출처 `https://cdn.jsdelivr.net/gh/MonadABXY/mona-font/web/`
+
+`globals.css`:
+```css
+@font-face{font-family:"Wanted Sans";src:url("/fonts/WantedSans-Regular.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Wanted Sans";src:url("/fonts/WantedSans-SemiBold.woff2") format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Wanted Sans";src:url("/fonts/WantedSans-Bold.woff2") format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Mona12";src:url("/fonts/Mona12.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Mona12";src:url("/fonts/Mona12-Bold.woff2") format("woff2");font-weight:700;font-display:swap}
+
+:root{ --font-sans:"Wanted Sans",system-ui,-apple-system,sans-serif; --font-mona:"Mona12",var(--font-sans); --accent-glow:rgba(11,93,46,.30); }
+.dark{ --accent-glow:rgba(54,210,126,.45); }
+body{ font-family:var(--font-sans); }
+.font-mona{ font-family:var(--font-mona); font-feature-settings:"locl" 1; font-language-override:"KOR "; }
+```
+`tailwind.config`: `theme.extend.fontFamily = { sans:["var(--font-sans)"], mona:["var(--font-mona)"] }`
+
+**역할 분리 — `font-mona`(픽셀)는 좁은 면적에만:** ① 헤더 타이틀 ② 경기 카드 스코어 숫자(LED) ③ **조 순위표 등수 배지** ④ 우승 팀명. 나머지(본문·테이블·패널 텍스트)는 전부 Wanted Sans. (Pretendard 언급 무시)
+
+→ Task 10 `MatchCard`의 스코어 숫자와 `StandingsTable`의 등수 셀에 `className="font-mona tabular-nums"` 적용. Task 13 헤더 타이틀에 `font-mona`.
+
+### B. `computeQualificationRanking` (Task 4 `src/lib/standings.ts`에 추가)
+
+- [ ] **테스트** (`standings.test.ts`에 추가)
+```ts
+import { computeQualificationRanking } from './standings'
+
+it('ranks 36 teams by tier: winners 1-12, runners 13-24, thirds 25-36', () => {
+  const letters: GroupId[] = ['A','B','C','D','E','F','G','H','I','J','K','L']
+  const groups = letters.map(makeGroup)   // Task 4 테스트의 makeGroup 재사용
+  const scores: ScoreMap = {}
+  letters.forEach((g, gi) => {            // 조마다 g0>g1>g2>g3 + 3위 강도 차등
+    scores[`${g}-23`] = { home: gi + 1, away: 0 }
+    scores[`${g}-02`] = { home: 3, away: 0 }; scores[`${g}-12`] = { home: 2, away: 0 }
+    scores[`${g}-01`] = { home: 3, away: 0 }; scores[`${g}-03`] = { home: 3, away: 0 }
+    scores[`${g}-13`] = { home: 2, away: 0 }
+  })
+  const q = computeQualificationRanking(groups, scores)
+  expect(q).toHaveLength(36)
+  expect(q.slice(0, 12).every((e) => e.tier === 1)).toBe(true)
+  expect(q.slice(12, 24).every((e) => e.tier === 2)).toBe(true)
+  expect(q.slice(24, 32).every((e) => e.tier === 3 && e.qualified)).toBe(true)
+  expect(q.slice(32).every((e) => e.tier === 4 && !e.qualified)).toBe(true)
+  expect(q[0].overall).toBe(1)
+})
+```
+- [ ] **구현** (`standings.ts`에 추가)
+```ts
+export interface QualEntry {
+  teamId: string
+  groupId: GroupId
+  points: number
+  gd: number
+  gf: number
+  tier: 1 | 2 | 3 | 4   // 1=조1위, 2=조2위, 3=진출 3위, 4=미진출 3위
+  overall: number       // 1..36
+  qualified: boolean    // overall <= 32
+}
+
+export function computeQualificationRanking(
+  groups: GroupInput[],
+  scores: ScoreMap,
+): QualEntry[] {
+  const cmp = (a: { points: number; gd: number; gf: number; groupId: GroupId },
+               b: { points: number; gd: number; gf: number; groupId: GroupId }) =>
+    b.points - a.points || b.gd - a.gd || b.gf - a.gf || a.groupId.localeCompare(b.groupId)
+
+  const winners: Omit<QualEntry, 'overall' | 'qualified'>[] = []
+  const runners: Omit<QualEntry, 'overall' | 'qualified'>[] = []
+  for (const g of groups) {
+    const t = computeGroupStandings(g.teamIds, g.matches, scores)
+    winners.push({ teamId: t[0].teamId, groupId: g.groupId, points: t[0].points, gd: t[0].gd, gf: t[0].gf, tier: 1 })
+    runners.push({ teamId: t[1].teamId, groupId: g.groupId, points: t[1].points, gd: t[1].gd, gf: t[1].gf, tier: 2 })
+  }
+  winners.sort(cmp); runners.sort(cmp)
+
+  const thirds = computeThirdPlaceRanking(groups, scores)
+  const mapThird = (t: ThirdPlaceEntry, tier: 3 | 4) =>
+    ({ teamId: t.teamId, groupId: t.groupId, points: t.points, gd: t.gd, gf: t.gf, tier })
+  const tier3 = thirds.filter((t) => t.qualified).map((t) => mapThird(t, 3))
+  const tier4 = thirds.filter((t) => !t.qualified).map((t) => mapThird(t, 4))
+
+  return [...winners, ...runners, ...tier3, ...tier4]
+    .map((e, i) => ({ ...e, overall: i + 1, qualified: i < 32 }))
+}
+```
+Run: `npm test -- standings` → PASS.
+
+### C. `selectQualificationRanking` (Task 8 `src/store/selectors.ts`에 추가)
+```ts
+import { computeQualificationRanking, type QualEntry } from '@/lib/standings'
+
+export function selectQualificationRanking(scores: ScoreMap): QualEntry[] {
+  const inputs = groupInputs()
+  if (inputs.length === 0) return []
+  return computeQualificationRanking(inputs, scores)
+}
+```
+
+### D. 진출 현황 패널 (Task 11 `src/components/ThirdPlacePanel.tsx` **대체**)
+```tsx
+'use client'
+import { useState } from 'react'
+import { useSimulator } from '@/store/useSimulator'
+import { selectQualificationRanking } from '@/store/selectors'
+import type { QualEntry } from '@/lib/standings'
+import { teamFlag, teamName } from '@/lib/teams'
+import { Button } from '@/components/ui/button'
+
+const tierLabel = (t: number) => (t === 1 ? '1위' : t === 2 ? '2위' : '3위')
+
+function Row({ e }: { e: QualEntry }) {
+  // 1~24 확정(차분) / 25~32 막차(녹색 음영) / 33~36 미진출(흐림). ✅ 아이콘 없이 음영만.
+  const tone = e.overall <= 24 ? 'opacity-90' : e.overall <= 32 ? 'bg-primary/10' : 'opacity-40'
+  const gd = e.gd > 0 ? `+${e.gd}` : `${e.gd}`
+  return (
+    <div className={`grid grid-cols-[22px_1fr_auto] items-center gap-2 rounded-lg px-2 py-1.5 text-sm ${tone}`}>
+      <span className="font-mona text-center text-xs tabular-nums text-muted-foreground">{e.overall}</span>
+      <span className="flex min-w-0 items-center gap-1.5">
+        <span>{teamFlag(e.teamId)}</span>
+        <span className="truncate">{teamName(e.teamId)}</span>
+        <span className="font-mona text-[11px] text-muted-foreground">{e.groupId} {tierLabel(e.tier)}</span>
+      </span>
+      <span className="font-mona text-xs tabular-nums text-muted-foreground">{e.points}pt {gd}</span>
+    </div>
+  )
+}
+
+function PanelBody() {
+  const scores = useSimulator((s) => s.scores)
+  const [expanded, setExpanded] = useState(false)
+  const all = selectQualificationRanking(scores)
+  const auto = all.slice(0, 24), bubble = all.slice(24, 32), out = all.slice(32)
+  return (
+    <div>
+      <h2 className="mb-3 text-lg font-bold tracking-tight">진출 현황</h2>
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="mb-1.5 flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold hover:border-primary"
+      >
+        <span className="text-muted-foreground">{expanded ? '▾' : '▸'}</span>
+        진출 확정 <span className="ml-auto font-normal text-muted-foreground">24팀</span>
+      </button>
+      {expanded && (
+        <>
+          {auto.map((e) => <Row key={e.teamId} e={e} />)}
+          <div className="my-2.5 h-px bg-border" />{/* 24/25 구분선 — 라벨 없음 */}
+        </>
+      )}
+      {bubble.map((e) => <Row key={e.teamId} e={e} />)}
+      <div className="my-3 flex items-center gap-2.5">{/* 32강 진출 컷 */}
+        <span className="h-0.5 flex-1 rounded bg-gradient-to-r from-transparent to-primary" />
+        <span className="whitespace-nowrap text-xs font-extrabold text-primary" style={{ textShadow: '0 0 14px var(--accent-glow)' }}>32강 진출 컷</span>
+        <span className="h-0.5 flex-1 rounded bg-gradient-to-l from-transparent to-primary" />
+      </div>
+      {out.map((e) => <Row key={e.teamId} e={e} />)}
+    </div>
+  )
+}
+
+export function ThirdPlacePanel() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <aside className="sticky top-4 hidden h-fit w-[312px] shrink-0 rounded-2xl border p-4 lg:block">
+        <PanelBody />
+      </aside>
+      <div className="lg:hidden">
+        <Button className="fixed bottom-4 right-4 z-30 rounded-full shadow-lg" onClick={() => setOpen((v) => !v)}>🥉 진출 현황</Button>
+        {open && (
+          <div className="fixed inset-x-3 bottom-3 z-30 max-h-[74vh] overflow-y-auto rounded-2xl border bg-background p-4 shadow-2xl">
+            <PanelBody />
+            <Button variant="outline" className="mt-3 w-full" onClick={() => setOpen(false)}>닫기</Button>
+          </div>
+        )}
+      </div>
+    </>
+  )
+}
+```
+> 색 토큰은 shadcn `primary`(=녹색 키컬러)를 사용. `bg-primary/10`이 막차(25~32) 음영. 컷 라인 글로우는 `--accent-glow`.
+
+---
+
 ## Self-Review 결과
 
 **1. Spec coverage**
