@@ -178,7 +178,7 @@ export function QualMorphBar({
           className={`overflow-hidden border shadow-2xl ${
             open
               ? 'flex max-h-[80vh] w-full max-w-md flex-col rounded-2xl bg-background'
-              : `rounded-full bg-background/95 backdrop-blur ${complete ? 'ring-2 ring-primary' : ''}`
+              : 'rounded-full bg-background/95 backdrop-blur'
           }`}
         >
           {open ? (
@@ -227,17 +227,30 @@ export function QualMorphBar({
               </div>
             </motion.div>
           ) : (
-            <button
-              type="button"
-              onClick={() => setOpen(true)}
-              className="flex items-center gap-2 whitespace-nowrap px-6 py-3 text-sm font-semibold"
-            >
-              🥉 {t('qualStatusButton')}
-              <span className="text-muted-foreground">·</span>
-              <span className="font-mona tabular-nums text-muted-foreground">
-                {filled}/{total}
-              </span>
-            </button>
+            // 겉: 진출 현황(→시트) 알약, 그 안에 다음으로(→다음) 버튼을 감싼 모양. 클릭영역은 단순 병렬.
+            <div className="flex items-center gap-2 py-1.5 pr-1.5 pl-5">
+              <button
+                type="button"
+                onClick={() => setOpen(true)}
+                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold"
+              >
+                🥉 {t('qualStatusButton')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (complete) onNext()
+                }}
+                disabled={!complete}
+                className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors ${
+                  complete
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted font-mona tabular-nums text-muted-foreground'
+                }`}
+              >
+                {complete ? `${t('next')} →` : `${filled}/${total}`}
+              </button>
+            </div>
           )}
         </motion.div>
       </div>
