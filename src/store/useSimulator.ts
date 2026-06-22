@@ -20,7 +20,6 @@ interface SimulatorState {
   scores: ScoreMap
   winners: Record<string, string | null>
   setScore: (matchId: string, score: Score) => void
-  clearScore: (matchId: string) => void
   setWinner: (matchId: string, teamId: string) => void
   resetToDefault: () => void
   clearAll: () => void
@@ -33,8 +32,6 @@ export const useSimulator = create<SimulatorState>()(
       winners: {},
       setScore: (matchId, score) =>
         set((st) => ({ scores: { ...st.scores, [matchId]: score } })),
-      clearScore: (matchId) =>
-        set((st) => ({ scores: { ...st.scores, [matchId]: null } })),
       setWinner: (matchId, teamId) =>
         set((st) => ({ winners: { ...st.winners, [matchId]: teamId } })),
       resetToDefault: () => set({ scores: defaultScores(), winners: {} }),

@@ -54,11 +54,7 @@ export function advanceBracket(
   for (const m of r32Resolved) resolved.set(m.id, m)
 
   const roundOrder: KnockoutMatch['round'][] = ['R32', 'R16', 'QF', 'SF', 'F']
-  const teamOf = (matchId: string): string | null => {
-    const m = resolved.get(matchId)
-    if (!m) return null
-    return winners[matchId] ?? null
-  }
+  const teamOf = (matchId: string): string | null => winners[matchId] ?? null
 
   const resolveSource = (src: KnockoutMatch['homeSource']): string | null => {
     if (src.type === 'winnerOf') return teamOf(src.matchId)

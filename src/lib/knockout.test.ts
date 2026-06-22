@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { it, expect } from 'vitest'
 import { seedKnockout, thirdPlaceComboKey, advanceBracket } from './knockout'
 import type { KnockoutMatch } from '@/types'
 import type { ResolvedMatch } from './knockout'

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { it, expect } from 'vitest'
 import { selectGroupStandings, selectThirdPlaceRanking, selectQualificationRanking } from './selectors'
 import type { ScoreMap } from '@/types'
 
