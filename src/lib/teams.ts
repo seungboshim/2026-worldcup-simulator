@@ -29,6 +29,11 @@ export function teamAbbr(id?: string | null, locale: Locale = 'ko'): string {
   return locale === 'en' ? team.id : team.name
 }
 
+// 승부예측 카드용: 로케일 무관 3글자 코드(FIFA 약어). 전광판 느낌.
+export function teamCode(id?: string | null): string {
+  return getTeam(id)?.id ?? '—'
+}
+
 export function teamFlag(id?: string | null): string {
   const team = getTeam(id)
   if (!team) return '🏳️'

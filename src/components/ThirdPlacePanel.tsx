@@ -1,5 +1,6 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { useSimulator } from '@/store/useSimulator'
 import { selectQualificationRanking } from '@/store/selectors'
 import type { QualEntry } from '@/lib/standings'
@@ -28,7 +29,7 @@ function Row({ e }: { e: QualEntry }) {
   )
 }
 
-function PanelBody() {
+export function QualPanelBody() {
   const { t } = useT()
   const scores = useSimulator((s) => s.scores)
   const [expanded, setExpanded] = useState(false)
@@ -71,27 +72,62 @@ function PanelBody() {
   )
 }
 
-export function ThirdPlacePanel() {
-  const { t } = useT()
-  const [open, setOpen] = useState(false)
+// 데스크탑: 우측 sticky 패널
+export function ThirdPlaceAside() {
   return (
-    <>
-      <aside className="sticky top-4 hidden h-fit w-[312px] shrink-0 rounded-2xl border p-4 lg:block">
-        <PanelBody />
-      </aside>
-      <div className="lg:hidden">
-        <Button className="fixed bottom-20 right-4 z-30 rounded-full shadow-lg" onClick={() => setOpen((v) => !v)}>
-          🥉 {t('qualStatusButton')}
-        </Button>
-        {open && (
-          <div className="fixed inset-x-3 bottom-3 z-40 max-h-[74vh] overflow-y-auto rounded-2xl border bg-background p-4 shadow-2xl">
-            <PanelBody />
-            <Button variant="outline" className="mt-3 w-full" onClick={() => setOpen(false)}>
-              {t('qualClose')}
-            </Button>
-          </div>
-        )}
-      </div>
-    </>
+    <aside className="sticky top-4 hidden h-fit w-[312px] shrink-0 rounded-2xl border p-4 lg:block">
+      <QualPanelBody />
+    </aside>
+  )
+}
+
+// 모바일: 하단 시트(motion 슬라이드업 + 백드롭). 내용이 길어지면 내부 스크롤.
+export function ThirdPlaceSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useT()
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open, onClose])
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <div className="lg:hidden">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            onClick={onClose}
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+          />
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'tween', ease: [0.16, 1, 0.3, 1], duration: 0.42 }}
+            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[82vh] flex-col rounded-t-2xl border-t bg-background shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex shrink-0 justify-center pt-3 pb-1">
+              <div className="h-1.5 w-10 rounded-full bg-border" />
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto px-4">
+              <QualPanelBody />
+            </div>
+            <div className="shrink-0 border-t p-3">
+              <Button variant="outline" className="w-full" onClick={onClose}>
+                {t('qualClose')}
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   )
 }

@@ -3,13 +3,14 @@ import { useState } from 'react'
 import { useSimulator } from '@/store/useSimulator'
 import { GroupStage } from '@/components/group/GroupStage'
 import { Bracket } from '@/components/knockout/Bracket'
-import { ThirdPlacePanel } from '@/components/ThirdPlacePanel'
+import { ThirdPlaceAside, ThirdPlaceSheet } from '@/components/ThirdPlacePanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useT } from '@/i18n/useT'
 
 export function Simulator() {
   const { t } = useT()
   const [tab, setTab] = useState('group')
+  const [sheetOpen, setSheetOpen] = useState(false)
   const scores = useSimulator((s) => s.scores)
   const total = Object.keys(scores).length
   const filled = Object.values(scores).filter((v) => v != null).length
@@ -29,11 +30,18 @@ export function Simulator() {
           <div className="min-w-0 flex-1">
             <GroupStage />
           </div>
-          <ThirdPlacePanel />
+          <ThirdPlaceAside />
         </div>
 
-        {/* 하단 플로팅 바: 모든 경기 입력 전엔 진행도, 완료되면 '다음으로' */}
-        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-4">
+        {/* 하단 플로팅 바: [진출현황(모바일)] · [진행도 / 다음] */}
+        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center gap-2 pb-4">
+          <button
+            type="button"
+            onClick={() => setSheetOpen(true)}
+            className="pointer-events-auto rounded-full border bg-background/90 px-5 py-3 text-sm font-semibold shadow-lg backdrop-blur lg:hidden"
+          >
+            🥉 {t('qualStatusButton')}
+          </button>
           {complete ? (
             <button
               type="button"
@@ -48,6 +56,8 @@ export function Simulator() {
             </div>
           )}
         </div>
+
+        <ThirdPlaceSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
       </TabsContent>
 
       <TabsContent value="knockout">
