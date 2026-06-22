@@ -3,14 +3,13 @@ import { useState } from 'react'
 import { useSimulator } from '@/store/useSimulator'
 import { GroupStage } from '@/components/group/GroupStage'
 import { Bracket } from '@/components/knockout/Bracket'
-import { ThirdPlaceAside, ThirdPlaceSheet } from '@/components/ThirdPlacePanel'
+import { ThirdPlaceAside, QualMorphBar } from '@/components/ThirdPlacePanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useT } from '@/i18n/useT'
 
 export function Simulator() {
   const { t } = useT()
   const [tab, setTab] = useState('group')
-  const [sheetOpen, setSheetOpen] = useState(false)
   const scores = useSimulator((s) => s.scores)
   const total = Object.keys(scores).length
   const filled = Object.values(scores).filter((v) => v != null).length
@@ -33,15 +32,8 @@ export function Simulator() {
           <ThirdPlaceAside />
         </div>
 
-        {/* 하단 플로팅 바: [진출현황(모바일)] · [진행도 / 다음] */}
-        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center gap-2 pb-4">
-          <button
-            type="button"
-            onClick={() => setSheetOpen(true)}
-            className="pointer-events-auto rounded-full border bg-background/90 px-5 py-3 text-sm font-semibold shadow-lg backdrop-blur lg:hidden"
-          >
-            🥉 {t('qualStatusButton')}
-          </button>
+        {/* 데스크탑: 진행도/다음 플로팅 (우측 패널이 늘 떠 있으므로 CTA만) */}
+        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 hidden justify-center pb-4 lg:flex">
           {complete ? (
             <button
               type="button"
@@ -57,7 +49,8 @@ export function Simulator() {
           )}
         </div>
 
-        <ThirdPlaceSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
+        {/* 모바일: 진출현황 알약 → 시트로 모프(진행도/다음 CTA 내장) */}
+        <QualMorphBar complete={complete} filled={filled} total={total} onNext={() => setTab('knockout')} />
       </TabsContent>
 
       <TabsContent value="knockout">

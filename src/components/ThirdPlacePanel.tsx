@@ -81,53 +81,104 @@ export function ThirdPlaceAside() {
   )
 }
 
-// 모바일: 하단 시트(motion 슬라이드업 + 백드롭). 내용이 길어지면 내부 스크롤.
-export function ThirdPlaceSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+// 모바일: 하단 알약 → 탭하면 시트로 "자라나는" 모프(motion layout). 예측 진행도 + 다음으로 CTA 내장.
+export function QualMorphBar({
+  complete,
+  filled,
+  total,
+  onNext,
+}: {
+  complete: boolean
+  filled: number
+  total: number
+  onNext: () => void
+}) {
   const { t } = useT()
+  const [open, setOpen] = useState(false)
+
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') setOpen(false)
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [open, onClose])
+  }, [open])
 
   return (
-    <AnimatePresence>
-      {open && (
-        <div className="lg:hidden">
+    <div className="lg:hidden">
+      <AnimatePresence>
+        {open && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            onClick={onClose}
+            transition={{ duration: 0.3 }}
+            onClick={() => setOpen(false)}
             className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
           />
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'tween', ease: [0.16, 1, 0.3, 1], duration: 0.42 }}
-            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[82vh] flex-col rounded-t-2xl border-t bg-background shadow-2xl"
-            role="dialog"
-            aria-modal="true"
-          >
-            <div className="flex shrink-0 justify-center pt-3 pb-1">
-              <div className="h-1.5 w-10 rounded-full bg-border" />
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto px-4">
-              <QualPanelBody />
-            </div>
-            <div className="shrink-0 border-t p-3">
-              <Button variant="outline" className="w-full" onClick={onClose}>
-                {t('qualClose')}
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+
+      <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-3">
+        <motion.div
+          layout
+          transition={{ layout: { duration: 0.42, ease: [0.16, 1, 0.3, 1] } }}
+          className={`overflow-hidden border shadow-2xl ${
+            open
+              ? 'flex max-h-[80vh] w-full max-w-md flex-col rounded-2xl bg-background'
+              : `rounded-full bg-background/95 backdrop-blur ${complete ? 'ring-2 ring-primary' : ''}`
+          }`}
+        >
+          {open ? (
+            <motion.div
+              initial={{ opacity: 0, filter: 'blur(8px)' }}
+              animate={{ opacity: 1, filter: 'blur(0px)' }}
+              transition={{ delay: 0.12, duration: 0.28 }}
+              className="flex min-h-0 flex-col"
+            >
+              <div className="flex shrink-0 justify-center pt-3 pb-1">
+                <div className="h-1.5 w-10 rounded-full bg-border" />
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto px-4">
+                <QualPanelBody />
+              </div>
+              <div className="flex shrink-0 items-center gap-2 border-t p-3">
+                <Button variant="outline" className="flex-1" onClick={() => setOpen(false)}>
+                  {t('qualClose')}
+                </Button>
+                {complete ? (
+                  <Button
+                    className="flex-1"
+                    onClick={() => {
+                      setOpen(false)
+                      onNext()
+                    }}
+                  >
+                    {t('next')} →
+                  </Button>
+                ) : (
+                  <span className="flex-1 text-center text-sm text-muted-foreground">
+                    {t('predictedMatches')} <span className="font-mona tabular-nums">{filled}/{total}</span>
+                  </span>
+                )}
+              </div>
+            </motion.div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              className="flex items-center gap-2 whitespace-nowrap px-6 py-3 text-sm font-semibold"
+            >
+              🥉 {t('qualStatusButton')}
+              <span className="text-muted-foreground">·</span>
+              <span className="font-mona tabular-nums text-muted-foreground">
+                {filled}/{total}
+              </span>
+            </button>
+          )}
+        </motion.div>
+      </div>
+    </div>
   )
 }
