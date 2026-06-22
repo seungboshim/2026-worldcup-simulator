@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import '../globals.css'
-import { ThemeProvider } from '@/components/theme/ThemeProvider'
+import { ThemeScript } from '@/components/theme/ThemeScript'
 import { I18nProvider } from '@/i18n/I18nProvider'
 import { getDictionary } from '@/i18n/dictionaries'
 import { isLocale, locales } from '@/i18n/config'
@@ -46,11 +46,10 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning className="h-full antialiased">
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>
-          <I18nProvider locale={locale} dict={dict}>
-            {children}
-          </I18nProvider>
-        </ThemeProvider>
+        <ThemeScript />
+        <I18nProvider locale={locale} dict={dict}>
+          {children}
+        </I18nProvider>
       </body>
     </html>
   )
