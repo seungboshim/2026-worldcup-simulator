@@ -1,0 +1,1348 @@
+{
+  "competition": "2026 FIFA World Cup",
+  "teams": [
+    {
+      "id": "MEX",
+      "name": "멕시코",
+      "flagCode": "mx",
+      "groupId": "A"
+    },
+    {
+      "id": "KOR",
+      "name": "대한민국",
+      "flagCode": "kr",
+      "groupId": "A"
+    },
+    {
+      "id": "CZE",
+      "name": "체코",
+      "flagCode": "cz",
+      "groupId": "A"
+    },
+    {
+      "id": "RSA",
+      "name": "남아프리카 공화국",
+      "flagCode": "za",
+      "groupId": "A"
+    },
+    {
+      "id": "CAN",
+      "name": "캐나다",
+      "flagCode": "ca",
+      "groupId": "B"
+    },
+    {
+      "id": "SUI",
+      "name": "스위스",
+      "flagCode": "ch",
+      "groupId": "B"
+    },
+    {
+      "id": "BIH",
+      "name": "보스니아 헤르체고비나",
+      "flagCode": "ba",
+      "groupId": "B"
+    },
+    {
+      "id": "QAT",
+      "name": "카타르",
+      "flagCode": "qa",
+      "groupId": "B"
+    },
+    {
+      "id": "BRA",
+      "name": "브라질",
+      "flagCode": "br",
+      "groupId": "C"
+    },
+    {
+      "id": "MAR",
+      "name": "모로코",
+      "flagCode": "ma",
+      "groupId": "C"
+    },
+    {
+      "id": "SCO",
+      "name": "스코틀랜드",
+      "flagCode": "gb",
+      "groupId": "C"
+    },
+    {
+      "id": "HAI",
+      "name": "아이티",
+      "flagCode": "ht",
+      "groupId": "C"
+    },
+    {
+      "id": "USA",
+      "name": "미국",
+      "flagCode": "us",
+      "groupId": "D"
+    },
+    {
+      "id": "AUS",
+      "name": "오스트레일리아",
+      "flagCode": "au",
+      "groupId": "D"
+    },
+    {
+      "id": "PAR",
+      "name": "파라과이",
+      "flagCode": "py",
+      "groupId": "D"
+    },
+    {
+      "id": "TUR",
+      "name": "튀르키예",
+      "flagCode": "tr",
+      "groupId": "D"
+    },
+    {
+      "id": "GER",
+      "name": "독일",
+      "flagCode": "de",
+      "groupId": "E"
+    },
+    {
+      "id": "CIV",
+      "name": "코트디부아르",
+      "flagCode": "ci",
+      "groupId": "E"
+    },
+    {
+      "id": "ECU",
+      "name": "에콰도르",
+      "flagCode": "ec",
+      "groupId": "E"
+    },
+    {
+      "id": "CUW",
+      "name": "쿠라소",
+      "flagCode": "cw",
+      "groupId": "E"
+    },
+    {
+      "id": "NED",
+      "name": "네덜란드",
+      "flagCode": "nl",
+      "groupId": "F"
+    },
+    {
+      "id": "JPN",
+      "name": "일본",
+      "flagCode": "jp",
+      "groupId": "F"
+    },
+    {
+      "id": "SWE",
+      "name": "스웨덴",
+      "flagCode": "se",
+      "groupId": "F"
+    },
+    {
+      "id": "TUN",
+      "name": "튀니지",
+      "flagCode": "tn",
+      "groupId": "F"
+    },
+    {
+      "id": "EGY",
+      "name": "이집트",
+      "flagCode": "eg",
+      "groupId": "G"
+    },
+    {
+      "id": "IRN",
+      "name": "이란",
+      "flagCode": "ir",
+      "groupId": "G"
+    },
+    {
+      "id": "BEL",
+      "name": "벨기에",
+      "flagCode": "be",
+      "groupId": "G"
+    },
+    {
+      "id": "NZL",
+      "name": "뉴질랜드",
+      "flagCode": "nz",
+      "groupId": "G"
+    },
+    {
+      "id": "ESP",
+      "name": "스페인",
+      "flagCode": "es",
+      "groupId": "H"
+    },
+    {
+      "id": "URU",
+      "name": "우루과이",
+      "flagCode": "uy",
+      "groupId": "H"
+    },
+    {
+      "id": "CPV",
+      "name": "카보베르데",
+      "flagCode": "cv",
+      "groupId": "H"
+    },
+    {
+      "id": "KSA",
+      "name": "사우디아라비아",
+      "flagCode": "sa",
+      "groupId": "H"
+    },
+    {
+      "id": "NOR",
+      "name": "노르웨이",
+      "flagCode": "no",
+      "groupId": "I"
+    },
+    {
+      "id": "FRA",
+      "name": "프랑스",
+      "flagCode": "fr",
+      "groupId": "I"
+    },
+    {
+      "id": "SEN",
+      "name": "세네갈",
+      "flagCode": "sn",
+      "groupId": "I"
+    },
+    {
+      "id": "IRQ",
+      "name": "이라크",
+      "flagCode": "iq",
+      "groupId": "I"
+    },
+    {
+      "id": "ARG",
+      "name": "아르헨티나",
+      "flagCode": "ar",
+      "groupId": "J"
+    },
+    {
+      "id": "AUT",
+      "name": "오스트리아",
+      "flagCode": "at",
+      "groupId": "J"
+    },
+    {
+      "id": "JOR",
+      "name": "요르단",
+      "flagCode": "jo",
+      "groupId": "J"
+    },
+    {
+      "id": "ALG",
+      "name": "알제리",
+      "flagCode": "dz",
+      "groupId": "J"
+    },
+    {
+      "id": "COL",
+      "name": "콜롬비아",
+      "flagCode": "co",
+      "groupId": "K"
+    },
+    {
+      "id": "COD",
+      "name": "콩고민주공화국",
+      "flagCode": "cd",
+      "groupId": "K"
+    },
+    {
+      "id": "POR",
+      "name": "포르투갈",
+      "flagCode": "pt",
+      "groupId": "K"
+    },
+    {
+      "id": "UZB",
+      "name": "우즈베키스탄",
+      "flagCode": "uz",
+      "groupId": "K"
+    },
+    {
+      "id": "ENG",
+      "name": "잉글랜드",
+      "flagCode": "gb",
+      "groupId": "L"
+    },
+    {
+      "id": "GHA",
+      "name": "가나",
+      "flagCode": "gh",
+      "groupId": "L"
+    },
+    {
+      "id": "PAN",
+      "name": "파나마",
+      "flagCode": "pa",
+      "groupId": "L"
+    },
+    {
+      "id": "CRO",
+      "name": "크로아티아",
+      "flagCode": "hr",
+      "groupId": "L"
+    }
+  ],
+  "groupMatches": [
+    {
+      "id": "GA-1",
+      "groupId": "A",
+      "homeId": "MEX",
+      "awayId": "RSA",
+      "played": true,
+      "defaultHome": 2,
+      "defaultAway": 0
+    },
+    {
+      "id": "GA-2",
+      "groupId": "A",
+      "homeId": "KOR",
+      "awayId": "CZE",
+      "played": true,
+      "defaultHome": 2,
+      "defaultAway": 1
+    },
+    {
+      "id": "GA-3",
+      "groupId": "A",
+      "homeId": "CZE",
+      "awayId": "RSA",
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 1
+    },
+    {
+      "id": "GA-4",
+      "groupId": "A",
+      "homeId": "MEX",
+      "awayId": "KOR",
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 0
+    },
+    {
+      "id": "GA-5",
+      "groupId": "A",
+      "homeId": "CZE",
+      "awayId": "MEX",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GA-6",
+      "groupId": "A",
+      "homeId": "RSA",
+      "awayId": "KOR",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GB-1",
+      "groupId": "B",
+      "homeId": "CAN",
+      "awayId": "BIH",
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 1
+    },
+    {
+      "id": "GB-2",
+      "groupId": "B",
+      "homeId": "QAT",
+      "awayId": "SUI",
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 1
+    },
+    {
+      "id": "GB-3",
+      "groupId": "B",
+      "homeId": "SUI",
+      "awayId": "BIH",
+      "played": true,
+      "defaultHome": 4,
+      "defaultAway": 1
+    },
+    {
+      "id": "GB-4",
+      "groupId": "B",
+      "homeId": "CAN",
+      "awayId": "QAT",
+      "played": true,
+      "defaultHome": 6,
+      "defaultAway": 0
+    },
+    {
+      "id": "GB-5",
+      "groupId": "B",
+      "homeId": "SUI",
+      "awayId": "CAN",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GB-6",
+      "groupId": "B",
+      "homeId": "BIH",
+      "awayId": "QAT",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GC-1",
+      "groupId": "C",
+      "homeId": "BRA",
+      "awayId": "MAR",
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 1
+    },
+    {
+      "id": "GC-2",
+      "groupId": "C",
+      "homeId": "HAI",
+      "awayId": "SCO",
+      "played": true,
+      "defaultHome": 0,
+      "defaultAway": 1
+    },
+    {
+      "id": "GC-3",
+      "groupId": "C",
+      "homeId": "SCO",
+      "awayId": "MAR",
+      "played": true,
+      "defaultHome": 0,
+      "defaultAway": 1
+    },
+    {
+      "id": "GC-4",
+      "groupId": "C",
+      "homeId": "BRA",
+      "awayId": "HAI",
+      "played": true,
+      "defaultHome": 3,
+      "defaultAway": 0
+    },
+    {
+      "id": "GC-5",
+      "groupId": "C",
+      "homeId": "SCO",
+      "awayId": "BRA",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GC-6",
+      "groupId": "C",
+      "homeId": "MAR",
+      "awayId": "HAI",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GD-1",
+      "groupId": "D",
+      "homeId": "USA",
+      "awayId": "PAR",
+      "played": true,
+      "defaultHome": 4,
+      "defaultAway": 1
+    },
+    {
+      "id": "GD-2",
+      "groupId": "D",
+      "homeId": "AUS",
+      "awayId": "TUR",
+      "played": true,
+      "defaultHome": 2,
+      "defaultAway": 0
+    },
+    {
+      "id": "GD-3",
+      "groupId": "D",
+      "homeId": "USA",
+      "awayId": "AUS",
+      "played": true,
+      "defaultHome": 2,
+      "defaultAway": 0
+    },
+    {
+      "id": "GD-4",
+      "groupId": "D",
+      "homeId": "TUR",
+      "awayId": "PAR",
+      "played": true,
+      "defaultHome": 0,
+      "defaultAway": 1
+    },
+    {
+      "id": "GD-5",
+      "groupId": "D",
+      "homeId": "TUR",
+      "awayId": "USA",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GD-6",
+      "groupId": "D",
+      "homeId": "PAR",
+      "awayId": "AUS",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GE-1",
+      "groupId": "E",
+      "homeId": "GER",
+      "awayId": "CUW",
+      "played": true,
+      "defaultHome": 7,
+      "defaultAway": 1
+    },
+    {
+      "id": "GE-2",
+      "groupId": "E",
+      "homeId": "CIV",
+      "awayId": "ECU",
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 0
+    },
+    {
+      "id": "GE-3",
+      "groupId": "E",
+      "homeId": "GER",
+      "awayId": "CIV",
+      "played": true,
+      "defaultHome": 2,
+      "defaultAway": 1
+    },
+    {
+      "id": "GE-4",
+      "groupId": "E",
+      "homeId": "ECU",
+      "awayId": "CUW",
+      "played": true,
+      "defaultHome": 0,
+      "defaultAway": 0
+    },
+    {
+      "id": "GE-5",
+      "groupId": "E",
+      "homeId": "CUW",
+      "awayId": "CIV",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GE-6",
+      "groupId": "E",
+      "homeId": "ECU",
+      "awayId": "GER",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GF-1",
+      "groupId": "F",
+      "homeId": "NED",
+      "awayId": "JPN",
+      "played": true,
+      "defaultHome": 2,
+      "defaultAway": 2
+    },
+    {
+      "id": "GF-2",
+      "groupId": "F",
+      "homeId": "SWE",
+      "awayId": "TUN",
+      "played": true,
+      "defaultHome": 5,
+      "defaultAway": 1
+    },
+    {
+      "id": "GF-3",
+      "groupId": "F",
+      "homeId": "NED",
+      "awayId": "SWE",
+      "played": true,
+      "defaultHome": 5,
+      "defaultAway": 1
+    },
+    {
+      "id": "GF-4",
+      "groupId": "F",
+      "homeId": "TUN",
+      "awayId": "JPN",
+      "played": true,
+      "defaultHome": 0,
+      "defaultAway": 4
+    },
+    {
+      "id": "GF-5",
+      "groupId": "F",
+      "homeId": "JPN",
+      "awayId": "SWE",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GF-6",
+      "groupId": "F",
+      "homeId": "TUN",
+      "awayId": "NED",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GG-1",
+      "groupId": "G",
+      "homeId": "BEL",
+      "awayId": "EGY",
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 1
+    },
+    {
+      "id": "GG-2",
+      "groupId": "G",
+      "homeId": "IRN",
+      "awayId": "NZL",
+      "played": true,
+      "defaultHome": 2,
+      "defaultAway": 2
+    },
+    {
+      "id": "GG-3",
+      "groupId": "G",
+      "homeId": "BEL",
+      "awayId": "IRN",
+      "played": true,
+      "defaultHome": 0,
+      "defaultAway": 0
+    },
+    {
+      "id": "GG-4",
+      "groupId": "G",
+      "homeId": "NZL",
+      "awayId": "EGY",
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 3
+    },
+    {
+      "id": "GG-5",
+      "groupId": "G",
+      "homeId": "EGY",
+      "awayId": "IRN",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GG-6",
+      "groupId": "G",
+      "homeId": "NZL",
+      "awayId": "BEL",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GH-1",
+      "groupId": "H",
+      "homeId": "ESP",
+      "awayId": "CPV",
+      "played": true,
+      "defaultHome": 0,
+      "defaultAway": 0
+    },
+    {
+      "id": "GH-2",
+      "groupId": "H",
+      "homeId": "KSA",
+      "awayId": "URU",
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 1
+    },
+    {
+      "id": "GH-3",
+      "groupId": "H",
+      "homeId": "ESP",
+      "awayId": "KSA",
+      "played": true,
+      "defaultHome": 4,
+      "defaultAway": 0
+    },
+    {
+      "id": "GH-4",
+      "groupId": "H",
+      "homeId": "URU",
+      "awayId": "CPV",
+      "played": true,
+      "defaultHome": 2,
+      "defaultAway": 2
+    },
+    {
+      "id": "GH-5",
+      "groupId": "H",
+      "homeId": "CPV",
+      "awayId": "KSA",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GH-6",
+      "groupId": "H",
+      "homeId": "URU",
+      "awayId": "ESP",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GI-1",
+      "groupId": "I",
+      "homeId": "FRA",
+      "awayId": "SEN",
+      "played": true,
+      "defaultHome": 3,
+      "defaultAway": 1
+    },
+    {
+      "id": "GI-2",
+      "groupId": "I",
+      "homeId": "IRQ",
+      "awayId": "NOR",
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 4
+    },
+    {
+      "id": "GI-3",
+      "groupId": "I",
+      "homeId": "FRA",
+      "awayId": "IRQ",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GI-4",
+      "groupId": "I",
+      "homeId": "NOR",
+      "awayId": "SEN",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GI-5",
+      "groupId": "I",
+      "homeId": "NOR",
+      "awayId": "FRA",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GI-6",
+      "groupId": "I",
+      "homeId": "SEN",
+      "awayId": "IRQ",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GJ-1",
+      "groupId": "J",
+      "homeId": "ARG",
+      "awayId": "ALG",
+      "played": true,
+      "defaultHome": 3,
+      "defaultAway": 0
+    },
+    {
+      "id": "GJ-2",
+      "groupId": "J",
+      "homeId": "AUT",
+      "awayId": "JOR",
+      "played": true,
+      "defaultHome": 3,
+      "defaultAway": 1
+    },
+    {
+      "id": "GJ-3",
+      "groupId": "J",
+      "homeId": "ARG",
+      "awayId": "AUT",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GJ-4",
+      "groupId": "J",
+      "homeId": "JOR",
+      "awayId": "ALG",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GJ-5",
+      "groupId": "J",
+      "homeId": "ALG",
+      "awayId": "AUT",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GJ-6",
+      "groupId": "J",
+      "homeId": "JOR",
+      "awayId": "ARG",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GK-1",
+      "groupId": "K",
+      "homeId": "POR",
+      "awayId": "COD",
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 1
+    },
+    {
+      "id": "GK-2",
+      "groupId": "K",
+      "homeId": "UZB",
+      "awayId": "COL",
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 3
+    },
+    {
+      "id": "GK-3",
+      "groupId": "K",
+      "homeId": "POR",
+      "awayId": "UZB",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GK-4",
+      "groupId": "K",
+      "homeId": "COL",
+      "awayId": "COD",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GK-5",
+      "groupId": "K",
+      "homeId": "COL",
+      "awayId": "POR",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GK-6",
+      "groupId": "K",
+      "homeId": "COD",
+      "awayId": "UZB",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GL-1",
+      "groupId": "L",
+      "homeId": "ENG",
+      "awayId": "CRO",
+      "played": true,
+      "defaultHome": 4,
+      "defaultAway": 2
+    },
+    {
+      "id": "GL-2",
+      "groupId": "L",
+      "homeId": "GHA",
+      "awayId": "PAN",
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 0
+    },
+    {
+      "id": "GL-3",
+      "groupId": "L",
+      "homeId": "ENG",
+      "awayId": "GHA",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GL-4",
+      "groupId": "L",
+      "homeId": "PAN",
+      "awayId": "CRO",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GL-5",
+      "groupId": "L",
+      "homeId": "PAN",
+      "awayId": "ENG",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    },
+    {
+      "id": "GL-6",
+      "groupId": "L",
+      "homeId": "CRO",
+      "awayId": "GHA",
+      "played": false,
+      "defaultHome": null,
+      "defaultAway": null
+    }
+  ],
+  "knockoutMatches": [
+    {
+      "id": "M73",
+      "round": "R32",
+      "order": 1,
+      "homeSource": {
+        "type": "groupRunnerUp",
+        "group": "A"
+      },
+      "awaySource": {
+        "type": "groupRunnerUp",
+        "group": "B"
+      }
+    },
+    {
+      "id": "M74",
+      "round": "R32",
+      "order": 2,
+      "homeSource": {
+        "type": "groupWinner",
+        "group": "E"
+      },
+      "awaySource": {
+        "type": "thirdPlace",
+        "slotId": "M74"
+      }
+    },
+    {
+      "id": "M75",
+      "round": "R32",
+      "order": 3,
+      "homeSource": {
+        "type": "groupWinner",
+        "group": "F"
+      },
+      "awaySource": {
+        "type": "groupRunnerUp",
+        "group": "C"
+      }
+    },
+    {
+      "id": "M76",
+      "round": "R32",
+      "order": 4,
+      "homeSource": {
+        "type": "groupWinner",
+        "group": "C"
+      },
+      "awaySource": {
+        "type": "groupRunnerUp",
+        "group": "F"
+      }
+    },
+    {
+      "id": "M77",
+      "round": "R32",
+      "order": 5,
+      "homeSource": {
+        "type": "groupWinner",
+        "group": "I"
+      },
+      "awaySource": {
+        "type": "thirdPlace",
+        "slotId": "M77"
+      }
+    },
+    {
+      "id": "M78",
+      "round": "R32",
+      "order": 6,
+      "homeSource": {
+        "type": "groupRunnerUp",
+        "group": "E"
+      },
+      "awaySource": {
+        "type": "groupRunnerUp",
+        "group": "I"
+      }
+    },
+    {
+      "id": "M79",
+      "round": "R32",
+      "order": 7,
+      "homeSource": {
+        "type": "groupWinner",
+        "group": "A"
+      },
+      "awaySource": {
+        "type": "thirdPlace",
+        "slotId": "M79"
+      }
+    },
+    {
+      "id": "M80",
+      "round": "R32",
+      "order": 8,
+      "homeSource": {
+        "type": "groupWinner",
+        "group": "L"
+      },
+      "awaySource": {
+        "type": "thirdPlace",
+        "slotId": "M80"
+      }
+    },
+    {
+      "id": "M81",
+      "round": "R32",
+      "order": 9,
+      "homeSource": {
+        "type": "groupWinner",
+        "group": "D"
+      },
+      "awaySource": {
+        "type": "thirdPlace",
+        "slotId": "M81"
+      }
+    },
+    {
+      "id": "M82",
+      "round": "R32",
+      "order": 10,
+      "homeSource": {
+        "type": "groupWinner",
+        "group": "G"
+      },
+      "awaySource": {
+        "type": "thirdPlace",
+        "slotId": "M82"
+      }
+    },
+    {
+      "id": "M83",
+      "round": "R32",
+      "order": 11,
+      "homeSource": {
+        "type": "groupRunnerUp",
+        "group": "K"
+      },
+      "awaySource": {
+        "type": "groupRunnerUp",
+        "group": "L"
+      }
+    },
+    {
+      "id": "M84",
+      "round": "R32",
+      "order": 12,
+      "homeSource": {
+        "type": "groupWinner",
+        "group": "H"
+      },
+      "awaySource": {
+        "type": "groupRunnerUp",
+        "group": "J"
+      }
+    },
+    {
+      "id": "M85",
+      "round": "R32",
+      "order": 13,
+      "homeSource": {
+        "type": "groupWinner",
+        "group": "B"
+      },
+      "awaySource": {
+        "type": "thirdPlace",
+        "slotId": "M85"
+      }
+    },
+    {
+      "id": "M86",
+      "round": "R32",
+      "order": 14,
+      "homeSource": {
+        "type": "groupWinner",
+        "group": "J"
+      },
+      "awaySource": {
+        "type": "groupRunnerUp",
+        "group": "H"
+      }
+    },
+    {
+      "id": "M87",
+      "round": "R32",
+      "order": 15,
+      "homeSource": {
+        "type": "groupWinner",
+        "group": "K"
+      },
+      "awaySource": {
+        "type": "thirdPlace",
+        "slotId": "M87"
+      }
+    },
+    {
+      "id": "M88",
+      "round": "R32",
+      "order": 16,
+      "homeSource": {
+        "type": "groupRunnerUp",
+        "group": "D"
+      },
+      "awaySource": {
+        "type": "groupRunnerUp",
+        "group": "G"
+      }
+    },
+    {
+      "id": "M89",
+      "round": "R16",
+      "order": 17,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M74"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M77"
+      }
+    },
+    {
+      "id": "M90",
+      "round": "R16",
+      "order": 18,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M73"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M75"
+      }
+    },
+    {
+      "id": "M91",
+      "round": "R16",
+      "order": 19,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M76"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M78"
+      }
+    },
+    {
+      "id": "M92",
+      "round": "R16",
+      "order": 20,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M79"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M80"
+      }
+    },
+    {
+      "id": "M93",
+      "round": "R16",
+      "order": 21,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M83"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M84"
+      }
+    },
+    {
+      "id": "M94",
+      "round": "R16",
+      "order": 22,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M81"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M82"
+      }
+    },
+    {
+      "id": "M95",
+      "round": "R16",
+      "order": 23,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M86"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M88"
+      }
+    },
+    {
+      "id": "M96",
+      "round": "R16",
+      "order": 24,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M85"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M87"
+      }
+    },
+    {
+      "id": "M97",
+      "round": "QF",
+      "order": 25,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M89"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M90"
+      }
+    },
+    {
+      "id": "M98",
+      "round": "QF",
+      "order": 26,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M93"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M94"
+      }
+    },
+    {
+      "id": "M99",
+      "round": "QF",
+      "order": 27,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M91"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M92"
+      }
+    },
+    {
+      "id": "M100",
+      "round": "QF",
+      "order": 28,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M95"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M96"
+      }
+    },
+    {
+      "id": "M101",
+      "round": "SF",
+      "order": 29,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M97"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M98"
+      }
+    },
+    {
+      "id": "M102",
+      "round": "SF",
+      "order": 30,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M99"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M100"
+      }
+    },
+    {
+      "id": "M104",
+      "round": "F",
+      "order": 31,
+      "homeSource": {
+        "type": "winnerOf",
+        "matchId": "M101"
+      },
+      "awaySource": {
+        "type": "winnerOf",
+        "matchId": "M102"
+      }
+    }
+  ]
+}
