@@ -3,6 +3,7 @@
 - **작성일**: 2026-06-23
 - **상태**: 설계 승인됨
 - **전제**: Phase 1(코어 시뮬레이터) 배포 완료. 이 문서는 Phase 2만 대상.
+- **수정(2026-06-23)**: DB 제공자를 **Supabase → Neon(서버리스 Postgres)** 으로 변경. 접근 방식(서버 전용)·스키마·통계 로직은 동일. 클라이언트는 `@neondatabase/serverless` + 순수 SQL, env는 `DATABASE_URL`(Neon은 연결 문자열이 서버 시크릿이라 RLS 불필요). 구현 세부는 계획 문서 기준. (DB-only 용도라 Supabase 번들을 안 써 Neon이 더 적합)
 
 ---
 

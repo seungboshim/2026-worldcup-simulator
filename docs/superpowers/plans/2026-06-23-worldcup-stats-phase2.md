@@ -4,9 +4,9 @@
 
 **Goal:** 완성한 토너먼트 예측을 익명 제출하고, 모두의 예측을 집계한 배당률(픽률) 대시보드(`/stats`)를 보여준다.
 
-**Architecture:** 모든 DB 접근은 Next 서버에서만 — 제출은 Server Action, 통계는 Server Component(SSR). Supabase는 순수 Postgres 저장소(service-role 키, 서버 전용). 라우팅은 하이브리드: 시뮬은 기존 `[locale]/page.tsx` 탭 유지, 통계는 `[locale]/stats` 별도 라우트. 공유 chrome(Header)은 `[locale]/layout.tsx`로 올려 시뮬·통계가 공유.
+**Architecture:** 모든 DB 접근은 Next 서버에서만 — 제출은 Server Action, 통계는 Server Component(SSR). Neon(서버리스 Postgres)을 DB로만 사용 — 서버 전용 `DATABASE_URL`로 접근. 라우팅은 하이브리드: 시뮬은 기존 `[locale]/page.tsx` 탭 유지, 통계는 `[locale]/stats` 별도 라우트. 공유 chrome(Header)은 `[locale]/layout.tsx`로 올려 시뮬·통계가 공유.
 
-**Tech Stack:** Next 16(App Router, Server Actions) · @supabase/supabase-js · Zustand · Vitest
+**Tech Stack:** Next 16(App Router, Server Actions) · @neondatabase/serverless · Zustand · Vitest
 
 ---
 
@@ -15,7 +15,8 @@
 | 파일 | 책임 |
 |------|------|
 | `scripts/phase2-predictions.sql` | `predictions` 테이블 DDL |
-| `src/lib/supabase-server.ts` | service-role 서버 클라이언트 |
+| `scripts/create-table.mjs` | env pull 후 테이블 생성 1회 실행 |
+| `src/lib/db.ts` | Neon 서버리스 Postgres 클라이언트 (`getSql`) |
 | `src/lib/predict.ts` | `extractPrediction`, `aggregateStats` (순수, 테스트) |
 | `src/lib/browser-id.ts` | `getBrowserId()` (클라) |
 | `src/store/selectors.ts` (수정) | `selectResolvedBracket` 추가 |
@@ -28,20 +29,20 @@
 | `src/components/stats/TierTable.tsx` | 배당 테이블 |
 | `src/i18n/dictionaries/{ko,en}.json` (수정) | 신규 키 |
 
-> **선행 의존성(사람이 수행):** Vercel 대시보드에서 Supabase 통합 추가 → `vercel env pull .env.local` → 아래 SQL 실행. Task 1·5·9는 이 env/테이블이 있어야 라이브 검증 가능. Task 2~4·6~8 중 순수 로직/UI는 env 없이 진행 가능.
+> **선행 의존성:** Vercel 대시보드에서 **Neon 연결**(Storage → Create Database → Neon) → `vercel env pull .env.local`(`DATABASE_URL` 주입) → `create-table.mjs`로 테이블 생성. Task 1·5·9는 이 env/테이블이 있어야 라이브 검증 가능. Task 2~4·6~8 중 순수 로직/UI는 env 없이 진행 가능.
 
 ---
 
-## Task 1: Supabase 클라이언트 + 테이블 DDL
+## Task 1: Neon(Postgres) 클라이언트 + 테이블
 
-**Files:** Create `scripts/phase2-predictions.sql`, `src/lib/supabase-server.ts`
+**Files:** Create `scripts/phase2-predictions.sql`, `scripts/create-table.mjs`, `src/lib/db.ts`
 
 - [ ] **Step 1: 의존성 설치**
 
-Run: `npm i @supabase/supabase-js`
+Run: `npm i @neondatabase/serverless`
 Expected: 설치 성공.
 
-- [ ] **Step 2: 테이블 DDL 작성** — `scripts/phase2-predictions.sql`
+- [ ] **Step 2: 테이블 DDL 기록** — `scripts/phase2-predictions.sql` (재현용 기록)
 ```sql
 create table if not exists predictions (
   id uuid primary key default gen_random_uuid(),
@@ -53,33 +54,50 @@ create table if not exists predictions (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
-alter table predictions enable row level security;
--- 클라이언트 정책 없음: 모든 접근은 서버 service-role 로만.
 ```
-> Supabase SQL editor에서 1회 실행(또는 통합 연결 후). 이 파일은 재현용 기록.
+> Neon은 연결 문자열(`DATABASE_URL`) 자체가 서버 시크릿이라 별도 RLS 불필요 — 접근은 서버에서만.
 
-- [ ] **Step 3: 서버 클라이언트** — `src/lib/supabase-server.ts`
+- [ ] **Step 3: 서버 클라이언트** — `src/lib/db.ts`
 ```ts
-import { createClient } from '@supabase/supabase-js'
+import { neon } from '@neondatabase/serverless'
 
-// Vercel Supabase 통합이 주입하는 env 사용(이름이 다르면 vercel env ls로 확인 후 맞춤).
-const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+// Vercel Neon 통합이 주입하는 DATABASE_URL(풀드) 사용. 서버 전용 시크릿.
+const url = process.env.DATABASE_URL ?? process.env.POSTGRES_URL
 
-export function getSupabaseAdmin() {
-  if (!url || !serviceKey) {
-    throw new Error('Supabase env (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY) is not set')
-  }
-  return createClient(url, serviceKey, { auth: { persistSession: false } })
+export function getSql() {
+  if (!url) throw new Error('DATABASE_URL is not set (connect Neon on Vercel + vercel env pull)')
+  return neon(url)
 }
 ```
 
-- [ ] **Step 4: 빌드 확인** — Run: `npm run build` → 성공(이 모듈은 아직 import되지 않아 env 없이도 컴파일).
+- [ ] **Step 4: 테이블 생성 스크립트** — `scripts/create-table.mjs` (env pull 후 1회 실행)
+```js
+import { neon } from '@neondatabase/serverless'
 
-- [ ] **Step 5: Commit**
+const url = process.env.DATABASE_URL ?? process.env.POSTGRES_URL
+if (!url) throw new Error('DATABASE_URL missing — run `vercel env pull .env.local` first')
+const sql = neon(url)
+
+await sql`create table if not exists predictions (
+  id uuid primary key default gen_random_uuid(),
+  browser_id text not null unique,
+  champion text not null,
+  finalists text[] not null,
+  semifinalists text[] not null,
+  quarterfinalists text[] not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+)`
+console.log('predictions table ready')
+```
+실행: `node --env-file=.env.local scripts/create-table.mjs` → `predictions table ready`.
+
+- [ ] **Step 5: 빌드 확인** — Run: `npm run build` → 성공(이 모듈은 아직 import되지 않아 env 없이도 컴파일).
+
+- [ ] **Step 6: Commit**
 ```bash
-git add scripts/phase2-predictions.sql src/lib/supabase-server.ts package.json package-lock.json
-git commit -m "feat: supabase server client + predictions table DDL"
+git add scripts/phase2-predictions.sql scripts/create-table.mjs src/lib/db.ts package.json package-lock.json
+git commit -m "feat: Neon serverless client + predictions table"
 ```
 
 ---
@@ -318,24 +336,23 @@ git commit -m "feat: anonymous browser id helper"
 - [ ] **Step 1: 구현** — `src/app/actions/submit-prediction.ts`
 ```ts
 'use server'
-import { getSupabaseAdmin } from '@/lib/supabase-server'
+import { getSql } from '@/lib/db'
 import type { PredictionPicks } from '@/lib/predict'
 
 export async function submitPrediction(browserId: string, picks: PredictionPicks): Promise<{ ok: boolean }> {
   if (!browserId) throw new Error('missing browser id')
-  const sb = getSupabaseAdmin()
-  const { error } = await sb.from('predictions').upsert(
-    {
-      browser_id: browserId,
-      champion: picks.champion,
-      finalists: picks.finalists,
-      semifinalists: picks.semifinalists,
-      quarterfinalists: picks.quarterfinalists,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: 'browser_id' },
-  )
-  if (error) throw new Error(error.message)
+  const sql = getSql()
+  // neon 태그드 템플릿은 JS 배열을 Postgres text[]로 바인딩. 파라미터화로 인젝션 안전.
+  await sql`
+    insert into predictions (browser_id, champion, finalists, semifinalists, quarterfinalists, updated_at)
+    values (${browserId}, ${picks.champion}, ${picks.finalists}, ${picks.semifinalists}, ${picks.quarterfinalists}, now())
+    on conflict (browser_id) do update set
+      champion = excluded.champion,
+      finalists = excluded.finalists,
+      semifinalists = excluded.semifinalists,
+      quarterfinalists = excluded.quarterfinalists,
+      updated_at = now()
+  `
   return { ok: true }
 }
 ```
@@ -628,7 +645,7 @@ export function TierTable({
 - [ ] **Step 2: 통계 페이지** — `src/app/[locale]/stats/page.tsx`
 ```tsx
 import { notFound } from 'next/navigation'
-import { getSupabaseAdmin } from '@/lib/supabase-server'
+import { getSql } from '@/lib/db'
 import { aggregateStats, type PredictionRow } from '@/lib/predict'
 import { getDictionary } from '@/i18n/dictionaries'
 import { isLocale } from '@/i18n/config'
@@ -641,11 +658,14 @@ export default async function StatsPage({ params }: { params: Promise<{ locale: 
   if (!isLocale(locale)) notFound()
   const t = getDictionary(locale)
 
-  const sb = getSupabaseAdmin()
-  const { data } = await sb
-    .from('predictions')
-    .select('champion,finalists,semifinalists,quarterfinalists')
-  const stats = aggregateStats((data ?? []) as PredictionRow[])
+  let rows: PredictionRow[] = []
+  try {
+    const sql = getSql()
+    rows = (await sql`select champion, finalists, semifinalists, quarterfinalists from predictions`) as PredictionRow[]
+  } catch {
+    rows = [] // DB 미설정/테이블 없음 → 빈 상태로 graceful 처리
+  }
+  const stats = aggregateStats(rows)
 
   return (
     <div className="space-y-4">
@@ -688,7 +708,7 @@ git commit -m "feat: /stats odds dashboard (SSR aggregate)"
 
 **Spec coverage**
 - 서버 전용 DB(Server Action 제출 + SSR 통계) → Task 5·9 ✅
-- Supabase 순수 DB + Vercel 통합 env → Task 1 + 선행 의존성 ✅
+- Neon(순수 Postgres) + Vercel 통합 env(DATABASE_URL) → Task 1 + 선행 의존성 ✅
 - 라운드별 진출팀 세트 스키마 → Task 1 DDL + `extractPrediction`(Task 2) ✅
 - 익명 브라우저 upsert → Task 4·5 ✅
 - 제출 트리거(우승 결정 시) → `extractPrediction` null 가드 + Task 8 CTA ✅
@@ -697,8 +717,8 @@ git commit -m "feat: /stats odds dashboard (SSR aggregate)"
 - 순수함수 테스트 → Task 2 ✅
 - (골든볼/R16은 의도적 범위 밖)
 
-**Placeholder scan**: 없음. env 변수명만 통합 결과에 따라 확인 필요(Task 1·3에 명시).
+**Placeholder scan**: 없음. Neon 통합이 주입하는 `DATABASE_URL` 사용 — 이름이 다르면 `vercel env ls`로 확인(Task 1 명시).
 
 **Type consistency**: `PredictionPicks`/`PredictionRow`/`TierCount`/`Stats`(Task 2)가 Action(5)·Submit(8)·Stats(9)·TierTable(9)에서 일치. `selectResolvedBracket`(Task 3) → Submit(8)에서 사용. `ResolvedMatch`(knockout.ts) 재사용 일관.
 
-**알려진 의존성**: Task 1·5·9의 라이브 DB 검증은 Vercel Supabase 통합 + `vercel env pull` + 테이블 생성 후 가능. 순수 로직(2)·UI(7·8 빌드)은 선행 없이 검증됨.
+**알려진 의존성**: Task 1·5·9의 라이브 DB 검증은 Vercel Neon 통합 + `vercel env pull` + `create-table.mjs` 실행 후 가능. 순수 로직(2)·UI(7·8 빌드)은 선행 없이 검증됨.
