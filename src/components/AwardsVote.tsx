@@ -85,18 +85,19 @@ export function AwardsVote() {
       <div className="mt-4 grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <div className="text-sm font-semibold">
-            {t('goldenBall')} <span className="font-normal text-muted-foreground">· {t('goldenBallHint')}</span>
+            {t('goldenBall')} <span className="ml-1 font-normal text-muted-foreground">{t('awardMvp')}</span>
           </div>
           <PlayerPicker candidates={ballCands} value={ball} onChange={setBall} locale={locale} />
         </div>
         <div className="space-y-2">
           <div className="text-sm font-semibold">
-            {t('goldenBoot')} <span className="font-normal text-muted-foreground">· {t('goldenBootHint')}</span>
+            {t('goldenBoot')} <span className="ml-1 font-normal text-muted-foreground">{t('awardTopScorer')}</span>
           </div>
           <PlayerPicker candidates={bootCands} value={boot} onChange={setBoot} locale={locale} />
         </div>
       </div>
-      <Button onClick={onSubmit} disabled={busy || !ball || !boot} className="mt-5 w-full sm:w-auto">
+      <p className="mt-4 text-sm text-muted-foreground">{t('awardsVotePrompt')}</p>
+      <Button onClick={onSubmit} disabled={busy || !ball || !boot} className="mt-3 w-full sm:w-auto">
         🏅 {t('awardsSubmit')}
       </Button>
     </section>

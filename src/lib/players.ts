@@ -39,7 +39,7 @@ export function goldenBallCandidates(pool: Player[], sfTeamIds: string[]): Playe
   return playersOfTeams(pool, sfTeamIds)
 }
 
-// 골든슈 후보 = 8강 팀 선수 중 공격수·미드필더만.
+// 골든부트 후보 = 8강 팀 선수 중 공격수·미드필더만.
 export function goldenBootCandidates(pool: Player[], qfTeamIds: string[]): Player[] {
   return playersOfTeams(pool, qfTeamIds).filter((p) => p.position === 'FW' || p.position === 'MF')
 }

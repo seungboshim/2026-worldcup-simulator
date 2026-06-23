@@ -37,7 +37,7 @@ export default async function StatsPage({ params }: { params: Promise<{ locale: 
       <div>
         <h2 className="text-2xl font-extrabold tracking-tight">{t.statsTitle}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {t.statsSubtitle} · {t.statsTotal} <span className="font-mona tabular-nums">{stats.total}</span>
+          {t.statsTotal} <span className="font-mona tabular-nums">{stats.total}</span>
         </p>
       </div>
       {stats.total === 0 ? (
