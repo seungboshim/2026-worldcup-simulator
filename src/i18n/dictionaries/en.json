@@ -41,5 +41,17 @@
   "undecided": "— TBD —",
   "tbd": "TBD",
   "nextPhaseTag": "Next phase",
-  "awardsNote": "Voting for the Golden Ball & Golden Boot will be added after the knockout stage ends."
+  "awardsNote": "Voting for the Golden Ball & Golden Boot will be added after the knockout stage ends.",
+  "navSim": "Simulator",
+  "navStats": "Stats",
+  "submitPrediction": "Submit my prediction",
+  "submitNeedsComplete": "Pick the champion to submit your prediction",
+  "statsTitle": "Prediction Stats",
+  "statsSubtitle": "Everyone's predictions, as odds",
+  "statsTotal": "Total",
+  "statsEmpty": "No predictions yet. Be the first to submit!",
+  "tierChampion": "Champion",
+  "tierFinalists": "Finalists",
+  "tierSemifinalists": "Semifinalists",
+  "tierQuarterfinalists": "Quarterfinalists"
 }

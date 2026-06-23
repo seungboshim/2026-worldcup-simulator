@@ -41,5 +41,17 @@
   "undecided": "— 미정 —",
   "tbd": "미정",
   "nextPhaseTag": "다음 단계",
-  "awardsNote": "골든볼 · 골든슈 투표는 토너먼트 종료 후 추가됩니다."
+  "awardsNote": "골든볼 · 골든슈 투표는 토너먼트 종료 후 추가됩니다.",
+  "navSim": "시뮬레이터",
+  "navStats": "통계",
+  "submitPrediction": "내 예측 제출",
+  "submitNeedsComplete": "토너먼트 우승팀까지 정하면 제출할 수 있어요",
+  "statsTitle": "예측 통계",
+  "statsSubtitle": "모두의 예측을 모은 배당률",
+  "statsTotal": "총 예측",
+  "statsEmpty": "아직 제출된 예측이 없어요. 첫 예측을 남겨보세요!",
+  "tierChampion": "우승",
+  "tierFinalists": "결승 진출",
+  "tierSemifinalists": "4강",
+  "tierQuarterfinalists": "8강"
 }

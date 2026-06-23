@@ -1,17 +1,15 @@
 'use client'
 import data from '../../../data/worldcup-2026.json'
-import thirdAssign from '../../../data/third-place-assignment.json'
-import type { KnockoutRound, ThirdPlaceAssignmentTable, WorldCupData } from '@/types'
+import type { KnockoutRound, WorldCupData } from '@/types'
 import { useSimulator } from '@/store/useSimulator'
-import { selectGroupStandings, selectThirdPlaceRanking } from '@/store/selectors'
-import { seedKnockout, advanceBracket } from '@/lib/knockout'
+import { selectResolvedBracket } from '@/store/selectors'
 import { teamFlag, teamName } from '@/lib/teams'
 import { BracketMatch } from './BracketMatch'
+import { SubmitPrediction } from '@/components/SubmitPrediction'
 import { useT } from '@/i18n/useT'
 import type { DictKey } from '@/i18n/dictionaries'
 
 const wc = data as unknown as WorldCupData
-const assignment = thirdAssign as unknown as ThirdPlaceAssignmentTable
 const ROUNDS: { round: KnockoutRound; labelKey: DictKey }[] = [
   { round: 'R32', labelKey: 'roundR32' }, { round: 'R16', labelKey: 'roundR16' },
   { round: 'QF', labelKey: 'roundQF' }, { round: 'SF', labelKey: 'roundSF' }, { round: 'F', labelKey: 'roundF' },
@@ -21,10 +19,7 @@ export function Bracket() {
   const { t, locale } = useT()
   const scores = useSimulator((s) => s.scores)
   const winners = useSimulator((s) => s.winners)
-  const standings = selectGroupStandings(scores)
-  const thirds = selectThirdPlaceRanking(scores)
-  const r32 = seedKnockout(wc.knockoutMatches, standings, thirds, assignment)
-  const all = advanceBracket(wc.knockoutMatches, r32, winners)
+  const all = selectResolvedBracket(scores, winners)
   const byId = new Map(all.map((m) => [m.id, m]))
   const finalMatch = wc.knockoutMatches.find((m) => m.round === 'F')
   const championId = finalMatch ? winners[finalMatch.id] ?? null : null
@@ -50,6 +45,7 @@ export function Bracket() {
           <div className="text-sm font-bold text-primary">🏆 {t('champion')}</div>
           <div className="mt-1.5 font-mona text-xl font-extrabold tracking-tight">{championId ? `${teamFlag(championId)} ${teamName(championId, locale)}` : t('undecided')}</div>
         </div>
+        <SubmitPrediction />
         <div className="rounded-xl border border-dashed p-3 text-xs text-muted-foreground">
           <span className="rounded border border-primary px-1.5 py-0.5 text-[11px] font-bold text-primary">{t('nextPhaseTag')}</span>
           <p className="mt-2">{t('awardsNote')}</p>

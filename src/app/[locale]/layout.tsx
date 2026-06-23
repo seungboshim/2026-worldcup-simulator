@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import '../globals.css'
 import { ThemeScript } from '@/components/theme/ThemeScript'
+import { Header } from '@/components/Header'
 import { I18nProvider } from '@/i18n/I18nProvider'
 import { getDictionary } from '@/i18n/dictionaries'
 import { isLocale, locales } from '@/i18n/config'
@@ -80,7 +81,10 @@ export default async function LocaleLayout({
       <body className="min-h-full">
         <ThemeScript />
         <I18nProvider locale={locale} dict={dict}>
-          {children}
+          <main className="mx-auto min-w-0 max-w-7xl space-y-5 p-4 sm:p-6">
+            <Header />
+            {children}
+          </main>
         </I18nProvider>
       </body>
     </html>

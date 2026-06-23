@@ -8,9 +8,12 @@ import {
   type ThirdPlaceEntry,
   type QualEntry,
 } from '@/lib/standings'
-import type { GroupId, ScoreMap, WorldCupData } from '@/types'
+import thirdAssign from '../../data/third-place-assignment.json'
+import { seedKnockout, advanceBracket, type ResolvedMatch } from '@/lib/knockout'
+import type { GroupId, ScoreMap, WorldCupData, ThirdPlaceAssignmentTable } from '@/types'
 
 const wc = data as unknown as WorldCupData
+const assignment = thirdAssign as unknown as ThirdPlaceAssignmentTable
 const GROUP_IDS: GroupId[] = ['A','B','C','D','E','F','G','H','I','J','K','L']
 
 function groupInputs(): GroupInput[] {
@@ -39,4 +42,15 @@ export function selectQualificationRanking(scores: ScoreMap): QualEntry[] {
   const inputs = groupInputs()
   if (inputs.length === 0) return []
   return computeQualificationRanking(inputs, scores)
+}
+
+// 완성된(또는 진행 중) 토너먼트 브래킷을 해소 — Bracket UI와 제출 CTA가 공유.
+export function selectResolvedBracket(
+  scores: ScoreMap,
+  winners: Record<string, string | null>,
+): ResolvedMatch[] {
+  const standings = selectGroupStandings(scores)
+  const thirds = selectThirdPlaceRanking(scores)
+  const r32 = seedKnockout(wc.knockoutMatches, standings, thirds, assignment)
+  return advanceBracket(wc.knockoutMatches, r32, winners)
 }

@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useSimulator } from '@/store/useSimulator'
 import { ThemeToggle } from '@/components/theme/ThemeToggle'
@@ -14,7 +15,6 @@ function LanguageSwitcher() {
   const switchTo = (next: Locale) => {
     if (next === locale) return
     const segments = pathname.split('/')
-    // segments[0] is '' (leading slash); segments[1] is the locale prefix
     segments[1] = next
     router.push(segments.join('/') || `/${next}`)
   }
@@ -39,20 +39,33 @@ function LanguageSwitcher() {
 }
 
 export function Header() {
-  const { t } = useT()
+  const { t, locale } = useT()
+  const pathname = usePathname()
   const resetToDefault = useSimulator((s) => s.resetToDefault)
   const clearAll = useSimulator((s) => s.clearAll)
+  const isSim = pathname === `/${locale}`
+  const linkCls = (active: boolean) =>
+    `text-sm font-semibold transition-colors ${active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`
+
   return (
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 className="font-mona text-3xl font-extrabold tracking-tight sm:text-4xl">
           <span className="text-primary">2026</span> {t('appTitle')}
         </h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">{t('tagline')}</p>
+        <nav className="mt-1.5 flex items-center gap-3">
+          <Link href={`/${locale}`} className={linkCls(isSim)}>{t('navSim')}</Link>
+          <span className="text-border">·</span>
+          <Link href={`/${locale}/stats`} className={linkCls(pathname.endsWith('/stats'))}>{t('navStats')}</Link>
+        </nav>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={() => resetToDefault()}>↺ {t('resetToReal')}</Button>
-        <Button variant="ghost" size="sm" onClick={() => clearAll()}>{t('clearAll')}</Button>
+        {isSim && (
+          <>
+            <Button variant="outline" size="sm" onClick={() => resetToDefault()}>↺ {t('resetToReal')}</Button>
+            <Button variant="ghost" size="sm" onClick={() => clearAll()}>{t('clearAll')}</Button>
+          </>
+        )}
         <LanguageSwitcher />
         <ThemeToggle />
       </div>
