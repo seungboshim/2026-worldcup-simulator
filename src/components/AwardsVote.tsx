@@ -80,7 +80,7 @@ export function AwardsVote() {
   }
 
   return (
-    <section className="mt-5 rounded-2xl border p-5">
+    <section id="awards-vote" className="mt-5 scroll-mt-4 rounded-2xl border p-5">
       <h2 className="text-lg font-bold">🏅 {t('awardsVoteTitle')}</h2>
       <div className="mt-4 grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
