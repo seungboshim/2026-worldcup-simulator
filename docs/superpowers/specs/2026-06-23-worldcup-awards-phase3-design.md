@@ -18,8 +18,9 @@
 ## 1. 선수 데이터 — `data/players-2026.json` (큐레이션)
 
 - **소싱**: 풋볼 API가 아니라 **웹검색으로 직접 큐레이션**(2026.6 현재 정보 기준 → 컷오프 문제 회피, 정확).
-- **가변 깊이**: 강팀(우승권) 4~5명, 중위권 2~3명, 약팀 1명. 총 **100명+**, 48팀 전부 ≥1명 커버.
-- 레코드: `{ id, nameKo, nameEn, teamId, position? }`.
+- **가변 깊이**: 강팀 4~5명, 중위권 2~3명, 약팀 1~2명. 총량은 유연(100명 고정 아님), 48팀 전부 ≥1명 커버.
+- 레코드: `{ id, nameKo, nameEn, teamId, position }` — `position`은 `'GK' | 'DF' | 'MF' | 'FW'` (골든슈 후보 필터에 필요).
+  - 약팀이라도 골든슈 후보가 될 수 있게 가능하면 공격수/미드필더 위주로 선정.
   - `id` 규칙: `{teamId}-{lastname-slug}` (예: `FRA-mbappe`). 고유.
   - `teamId`는 기존 팀(국기·팀명) 연결.
 - 쉽게 수정 가능한 JSON — 부정확/스쿼드 변동분은 교체. (일일 결과 갱신과 무관한 별도 파일.)
@@ -28,8 +29,10 @@
 
 ## 2. 순수 로직 (유닛테스트 대상)
 
-### 2.1 `candidatesForTeams(teamIds, players): Player[]`
-주어진 팀 id 집합에 속한 선수만 반환(정렬: 팀 → 이름). 투표 후보 풀 산정에 사용.
+### 2.1 후보 산정 (어워드별 다름)
+- `goldenBallCandidates(players, sfTeamIds): Player[]` — 4강 팀 선수 **전체(전 포지션)**.
+- `goldenBootCandidates(players, qfTeamIds): Player[]` — 8강 팀 선수 중 **공격수·미드필더만**(position ∈ {FW, MF}).
+- 공통 헬퍼 `playersOfTeams(players, teamIds)` + position 필터로 구성. 정렬: 팀 → 이름.
 
 ### 2.2 `aggregateAwards(rows): AwardStats`
 투표 행들을 받아 골든볼/골든슈 각각 playerId별 카운트·픽률 집계(내림차순). 총 투표 수 포함. (Phase 2 `aggregateStats`와 동일 패턴.)
@@ -38,12 +41,12 @@
 
 ## 3. 후보 산정 (브래킷 기반)
 
-- **투표 가능 시점**: 브래킷 완성(우승 결정). 이때 사용자의 **4강 4팀**이 정해짐.
-- 후보 풀 = 그 4강 팀들의 선수 = `candidatesForTeams(semifinalistTeamIds, players)`.
-  - 4강 팀은 `extractPrediction`(Phase 2)의 `semifinalists`에서 팀 id 도출(선수→팀 매핑 역방향이 아니라, 4강 경기 참가 팀 id 직접).
-  - 실제로는 4강 **경기 참가 팀**이 필요하므로, `selectResolvedBracket`의 SF 라운드 참가 팀 id를 사용(선수 데이터의 teamId와 매칭).
-- 골든볼·골든슈 각각 이 풀에서 1명 선택.
-- 풀이 적을 수 있음(약팀만 올린 경우) — 허용(본인 선택의 결과).
+- **투표 가능 시점**: 브래킷 완성(우승 결정). 이때 4강·8강 팀이 모두 정해짐.
+- **골든볼 후보** = 사용자의 **4강 4팀** 선수 전체 = `goldenBallCandidates(players, picks.semifinalists)`.
+- **골든슈 후보** = 사용자의 **8강 8팀** 중 공격수·미드필더 = `goldenBootCandidates(players, picks.quarterfinalists)`.
+  - `picks`는 Phase 2 `extractPrediction` 결과 — `semifinalists`(4강 팀 id 4개), `quarterfinalists`(8강 팀 id 8개).
+- 각 어워드에서 해당 풀의 선수 1명 선택.
+- 풀이 적을 수 있음(약팀 위주로 올린 경우) — 허용(본인 선택의 결과).
 
 ---
 
@@ -88,7 +91,7 @@ create table if not exists awards_votes (
 | 파일 | 역할 |
 |------|------|
 | `data/players-2026.json` | 큐레이션 선수 명단 |
-| `src/lib/players.ts` | `getPlayer`, `playerName`, `candidatesForTeams` |
+| `src/lib/players.ts` | `getPlayer`, `playerName`, `playersOfTeams`, `goldenBallCandidates`, `goldenBootCandidates` |
 | `src/lib/awards.ts` | `aggregateAwards` (순수, 테스트) |
 | `scripts/awards-votes.sql` + create-table | `awards_votes` DDL |
 | `src/app/actions/submit-awards.ts` | Server Action |
