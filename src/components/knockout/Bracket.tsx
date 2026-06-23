@@ -3,6 +3,7 @@ import data from '../../../data/worldcup-2026.json'
 import type { KnockoutRound, WorldCupData } from '@/types'
 import { useSimulator } from '@/store/useSimulator'
 import { selectResolvedBracket } from '@/store/selectors'
+import { bracketLayoutRank } from '@/lib/bracket-layout'
 import { teamFlag, teamName } from '@/lib/teams'
 import { BracketMatch } from './BracketMatch'
 import { SubmitPrediction } from '@/components/SubmitPrediction'
@@ -10,6 +11,8 @@ import { useT } from '@/i18n/useT'
 import type { DictKey } from '@/i18n/dictionaries'
 
 const wc = data as unknown as WorldCupData
+// 트리 순서로 세로 정렬 — 같은 다음 라운드로 올라가는 두 경기가 인접하게(공식 대진표 레이아웃).
+const LAYOUT_RANK = bracketLayoutRank(wc.knockoutMatches)
 const ROUNDS: { round: KnockoutRound; labelKey: DictKey }[] = [
   { round: 'R32', labelKey: 'roundR32' }, { round: 'R16', labelKey: 'roundR16' },
   { round: 'QF', labelKey: 'roundQF' }, { round: 'SF', labelKey: 'roundSF' }, { round: 'F', labelKey: 'roundF' },
@@ -27,7 +30,9 @@ export function Bracket() {
   return (
     <div className="flex gap-6 overflow-x-auto pb-4">
       {ROUNDS.map(({ round, labelKey }) => {
-        const matches = wc.knockoutMatches.filter((m) => m.round === round).sort((a, b) => a.order - b.order)
+        const matches = wc.knockoutMatches
+          .filter((m) => m.round === round)
+          .sort((a, b) => (LAYOUT_RANK.get(a.id) ?? 0) - (LAYOUT_RANK.get(b.id) ?? 0))
         return (
           <div key={round} className="flex min-w-[190px] flex-col">
             <h3 className="mb-3.5 text-sm font-bold">{t(labelKey)} <span className="font-normal text-muted-foreground">· {t('roundMatches', { n: matches.length })}</span></h3>
