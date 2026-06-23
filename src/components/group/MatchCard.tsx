@@ -4,7 +4,7 @@ import { useSimulator } from '@/store/useSimulator'
 import { teamFlag, teamCode } from '@/lib/teams'
 import { useT } from '@/i18n/useT'
 
-export function MatchCard({ match }: { match: GroupMatch }) {
+export function MatchCard({ match, guide = false }: { match: GroupMatch; guide?: boolean }) {
   const { t } = useT()
   const score = useSimulator((s) => s.scores[match.id])
   const setScore = useSimulator((s) => s.setScore)
@@ -13,27 +13,59 @@ export function MatchCard({ match }: { match: GroupMatch }) {
   const a = score?.away ?? 0
   const update = (home: number, away: number) =>
     setScore(match.id, { home: Math.max(0, home), away: Math.max(0, away) })
+
   return (
-    <div
-      className={`grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm transition-opacity ${filled ? '' : 'opacity-45'}`}
-    >
-      <span className="flex min-w-0 items-center justify-end gap-1.5">
-        <span className="truncate">{teamCode(match.homeId)}</span>
-        <span className="text-base leading-none">{teamFlag(match.homeId)}</span>
-      </span>
-      <span className="flex items-center gap-1">
-        <Stepper onUp={() => update(h + 1, a)} onDown={() => update(h - 1, a)} upLabel={t('scoreUp')} downLabel={t('scoreDown')} />
-        <span className="font-mona rounded-md bg-board px-2.5 py-1 font-bold text-board-ink tabular-nums shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]">
-          {h}
-          <span className="opacity-50"> : </span>
-          {a}
+    <div className="flex flex-col">
+      {guide && (
+        <div
+          aria-hidden
+          className="mb-1 grid grid-cols-[1fr_auto_1fr] items-end gap-2 text-[11px] font-semibold leading-tight text-primary"
+        >
+          <span className="flex items-center justify-end gap-0.5">
+            {t('guideScore')}
+            <span className="text-sm leading-none">↓</span>
+          </span>
+          <span className="flex flex-col items-center">
+            {t('guideReset')}
+            <span className="text-sm leading-none">↓</span>
+          </span>
+          <span />
+        </div>
+      )}
+      <div className={`grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm transition-opacity ${filled ? '' : 'opacity-45'}`}>
+        <button
+          type="button"
+          onClick={() => update(h + 1, a)}
+          aria-label={`${teamCode(match.homeId)} ${t('guideScore')}`}
+          className="flex min-w-0 items-center justify-end gap-1.5 rounded-md py-1 transition-colors hover:bg-accent hover:text-primary"
+        >
+          <span className="truncate">{teamCode(match.homeId)}</span>
+          <span className="text-base leading-none">{teamFlag(match.homeId)}</span>
+        </button>
+        <span className="flex items-center gap-1">
+          <Stepper onUp={() => update(h + 1, a)} onDown={() => update(h - 1, a)} upLabel={t('scoreUp')} downLabel={t('scoreDown')} />
+          <button
+            type="button"
+            onClick={() => update(0, 0)}
+            aria-label={t('guideReset')}
+            className="font-mona rounded-md bg-board px-2.5 py-1 font-bold text-board-ink tabular-nums shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] transition-transform hover:scale-105"
+          >
+            {h}
+            <span className="opacity-50"> : </span>
+            {a}
+          </button>
+          <Stepper onUp={() => update(h, a + 1)} onDown={() => update(h, a - 1)} upLabel={t('scoreUp')} downLabel={t('scoreDown')} />
         </span>
-        <Stepper onUp={() => update(h, a + 1)} onDown={() => update(h, a - 1)} upLabel={t('scoreUp')} downLabel={t('scoreDown')} />
-      </span>
-      <span className="flex min-w-0 items-center gap-1.5">
-        <span className="text-base leading-none">{teamFlag(match.awayId)}</span>
-        <span className="truncate">{teamCode(match.awayId)}</span>
-      </span>
+        <button
+          type="button"
+          onClick={() => update(h, a + 1)}
+          aria-label={`${teamCode(match.awayId)} ${t('guideScore')}`}
+          className="flex min-w-0 items-center justify-start gap-1.5 rounded-md py-1 transition-colors hover:bg-accent hover:text-primary"
+        >
+          <span className="text-base leading-none">{teamFlag(match.awayId)}</span>
+          <span className="truncate">{teamCode(match.awayId)}</span>
+        </button>
+      </div>
     </div>
   )
 }

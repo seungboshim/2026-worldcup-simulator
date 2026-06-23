@@ -25,8 +25,8 @@ export function GroupCard({ groupId }: { groupId: GroupId }) {
         <span className="text-xs text-muted-foreground">{t('groupMatchesCount', { n: matches.length })}</span>
       </div>
       <div className="mb-3 flex flex-col gap-1.5">
-        {matches.map((m) => (
-          <MatchCard key={m.id} match={m} />
+        {matches.map((m, i) => (
+          <MatchCard key={m.id} match={m} guide={groupId === 'A' && i === 0} />
         ))}
       </div>
       <StandingsTable rows={standings} />

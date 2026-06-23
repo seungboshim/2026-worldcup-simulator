@@ -7,6 +7,8 @@
   "themeLabel": "테마",
   "scoreUp": "득점 증가",
   "scoreDown": "득점 감소",
+  "guideScore": "눌러서 +1골",
+  "guideReset": "눌러서 초기화",
   "tabGroup": "조별리그",
   "tabKnockout": "토너먼트",
   "predictedMatches": "예측한 경기",
