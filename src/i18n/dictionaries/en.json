@@ -53,5 +53,12 @@
   "tierChampion": "Champion",
   "tierFinalists": "Finalists",
   "tierSemifinalists": "Semifinalists",
-  "tierQuarterfinalists": "Quarterfinalists"
+  "tierQuarterfinalists": "Quarterfinalists",
+  "awardsVoteTitle": "Awards vote",
+  "awardsNeedsComplete": "Pick the champion to vote for the Golden Ball & Boot",
+  "goldenBall": "Golden Ball",
+  "goldenBoot": "Golden Boot",
+  "goldenBallHint": "from semifinal teams",
+  "goldenBootHint": "from QF attackers & mids",
+  "awardsSubmit": "Submit vote"
 }

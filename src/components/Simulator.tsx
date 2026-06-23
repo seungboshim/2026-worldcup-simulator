@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useSimulator } from '@/store/useSimulator'
 import { GroupStage } from '@/components/group/GroupStage'
 import { Bracket } from '@/components/knockout/Bracket'
+import { AwardsVote } from '@/components/AwardsVote'
 import { ThirdPlaceAside, QualMorphBar } from '@/components/ThirdPlacePanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useT } from '@/i18n/useT'
@@ -60,6 +61,7 @@ export function Simulator() {
 
       <TabsContent value="knockout" className="min-w-0">
         <Bracket />
+        <AwardsVote />
       </TabsContent>
     </Tabs>
   )

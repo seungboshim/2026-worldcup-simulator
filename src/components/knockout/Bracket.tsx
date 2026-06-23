@@ -46,10 +46,6 @@ export function Bracket() {
           <div className="mt-1.5 font-mona text-xl font-extrabold tracking-tight">{championId ? `${teamFlag(championId)} ${teamName(championId, locale)}` : t('undecided')}</div>
         </div>
         <SubmitPrediction />
-        <div className="rounded-xl border border-dashed p-3 text-xs text-muted-foreground">
-          <span className="rounded border border-primary px-1.5 py-0.5 text-[11px] font-bold text-primary">{t('nextPhaseTag')}</span>
-          <p className="mt-2">{t('awardsNote')}</p>
-        </div>
       </div>
     </div>
   )

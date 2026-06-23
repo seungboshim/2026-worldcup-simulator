@@ -53,5 +53,12 @@
   "tierChampion": "우승",
   "tierFinalists": "결승 진출",
   "tierSemifinalists": "4강",
-  "tierQuarterfinalists": "8강"
+  "tierQuarterfinalists": "8강",
+  "awardsVoteTitle": "어워드 투표",
+  "awardsNeedsComplete": "우승팀까지 정하면 골든볼·골든슈를 뽑을 수 있어요",
+  "goldenBall": "골든볼",
+  "goldenBoot": "골든슈",
+  "goldenBallHint": "4강 진출 팀에서",
+  "goldenBootHint": "8강 팀 공격·미드에서",
+  "awardsSubmit": "투표 제출"
 }
