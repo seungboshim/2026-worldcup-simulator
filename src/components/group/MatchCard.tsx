@@ -14,6 +14,9 @@ export function MatchCard({ match, guide = false }: { match: GroupMatch; guide?:
   const update = (home: number, away: number) =>
     setScore(match.id, { home: Math.max(0, home), away: Math.max(0, away) })
 
+  // 가이드(A조 첫 경기)에서만 탭 영역을 점선으로 표시(outline은 레이아웃에 영향 없음).
+  const ring = guide ? ' outline-dotted outline-2 outline-offset-2 outline-primary/60' : ''
+
   return (
     <div className="flex flex-col">
       {guide && (
@@ -37,7 +40,7 @@ export function MatchCard({ match, guide = false }: { match: GroupMatch; guide?:
           type="button"
           onClick={() => update(h + 1, a)}
           aria-label={`${teamCode(match.homeId)} ${t('guideScore')}`}
-          className="flex min-w-0 items-center justify-end gap-1.5 rounded-md py-1 transition-colors hover:bg-accent hover:text-primary"
+          className={`flex min-w-0 items-center justify-end gap-1.5 rounded-md py-1 transition-colors hover:bg-accent hover:text-primary${ring}`}
         >
           <span className="truncate">{teamCode(match.homeId)}</span>
           <span className="text-base leading-none">{teamFlag(match.homeId)}</span>
@@ -48,7 +51,7 @@ export function MatchCard({ match, guide = false }: { match: GroupMatch; guide?:
             type="button"
             onClick={() => update(0, 0)}
             aria-label={t('guideReset')}
-            className="font-mona rounded-md bg-board px-2.5 py-1 font-bold text-board-ink tabular-nums shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] transition-transform hover:scale-105"
+            className={`font-mona rounded-md bg-board px-2.5 py-1 font-bold text-board-ink tabular-nums shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] transition-transform hover:scale-105${ring}`}
           >
             {h}
             <span className="opacity-50"> : </span>
@@ -60,7 +63,7 @@ export function MatchCard({ match, guide = false }: { match: GroupMatch; guide?:
           type="button"
           onClick={() => update(h, a + 1)}
           aria-label={`${teamCode(match.awayId)} ${t('guideScore')}`}
-          className="flex min-w-0 items-center justify-start gap-1.5 rounded-md py-1 transition-colors hover:bg-accent hover:text-primary"
+          className={`flex min-w-0 items-center justify-start gap-1.5 rounded-md py-1 transition-colors hover:bg-accent hover:text-primary${ring}`}
         >
           <span className="text-base leading-none">{teamFlag(match.awayId)}</span>
           <span className="truncate">{teamCode(match.awayId)}</span>
