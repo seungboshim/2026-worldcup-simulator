@@ -15,14 +15,17 @@
 
 ---
 
-## 1. 환경변수
+## 1. 설정값 (공개 ID — 하드코딩)
 
-| 키 | 예시 | 용도 |
-|----|------|------|
-| `NEXT_PUBLIC_ADSENSE_CLIENT` | `ca-pub-XXXXXXXXXXXXXXXX` | 퍼블리셔 ID(로더·ins·ads.txt) |
-| `NEXT_PUBLIC_ADSENSE_SLOT_BANNER` | `1234567890` | 하단 배너 광고 단위 슬롯 ID |
+퍼블리셔/슬롯 ID는 시크릿이 아니라 사이트 고정 공개값이므로 `src/lib/adsense.ts`에 상수로 둔다(검색콘솔 토큰과 동일 방식, Vercel env 설정 불필요).
 
-둘 다 있을 때만 광고가 렌더된다.
+| 상수 | 값 | 용도 |
+|------|----|----|
+| `ADSENSE_CLIENT` | `ca-pub-3511914726275246` (확보됨) | 인증 메타태그·로더·ads.txt |
+| `ADSENSE_SLOT_BANNER` | `''` (승인 후 광고단위 생성 시 확정) | 하단 배너 슬롯 ID |
+
+- **사이트 인증**: `<meta name="google-adsense-account" content="ca-pub-3511914726275246">` 를 layout 메타데이터(`verification.other`)에 추가 — **2026-06-24 적용·배포 완료**(심사 시작용).
+- 배너는 `ADSENSE_SLOT_BANNER`가 비어 있으면 렌더 안 함(승인 전엔 광고 없음, 안전). 승인 후 상수만 채우고 재배포하면 라이브.
 
 ---
 
