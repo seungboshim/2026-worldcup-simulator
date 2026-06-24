@@ -61,7 +61,7 @@ export async function generateMetadata({
     },
     twitter: { card: 'summary_large_image', title: m.title, description: m.description },
     robots: { index: true, follow: true },
-    verification: { google: 'BzaV_YzBqVUgzb0UfYM7CbJLEE3sXqyQ56_aU6ceIR0' },
+    verification: { google: 'zpLwSxWWbNl8T_Oe15huRieqZ0Cs03dk7WzD9soxelk' },
   }
 }
 
