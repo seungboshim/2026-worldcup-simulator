@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import '../globals.css'
 import { ThemeScript } from '@/components/theme/ThemeScript'
+import { AdScript } from '@/components/ads/AdScript'
+import { AdBanner } from '@/components/ads/AdBanner'
 import { Header } from '@/components/Header'
 import { I18nProvider } from '@/i18n/I18nProvider'
 import { getDictionary } from '@/i18n/dictionaries'
@@ -83,10 +85,12 @@ export default async function LocaleLayout({
     <html lang={locale} suppressHydrationWarning className="h-full antialiased">
       <body className="min-h-full">
         <ThemeScript />
+        <AdScript />
         <I18nProvider locale={locale} dict={dict}>
           <main className="mx-auto min-w-0 max-w-7xl space-y-5 p-4 sm:p-6">
             <Header />
             {children}
+            <AdBanner />
           </main>
         </I18nProvider>
       </body>
