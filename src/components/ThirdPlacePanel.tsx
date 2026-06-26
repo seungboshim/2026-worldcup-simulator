@@ -20,6 +20,17 @@ const SHADOW_DOWN = '0 8px 24px rgba(239, 68, 68, 0.45)'
 const flashShadow = (f: 'up' | 'down' | null | undefined, rest: string) =>
   f === 'up' ? SHADOW_UP : f === 'down' ? SHADOW_DOWN : rest
 
+// 30·31·32등(버블) 경고 = 노랑 테두리 깜빡. flash(초록/빨강)가 있으면 flash가 우선(노랑에 안 가려짐).
+const yellowBlink = (rest: string): string[] => [
+  `0 0 0 1px rgba(250,204,21,0.12), ${rest}`,
+  `0 0 0 3px rgba(250,204,21,0.95), ${rest}`,
+  `0 0 0 1px rgba(250,204,21,0.12), ${rest}`,
+]
+const panelShadow = (flash: 'up' | 'down' | null | undefined, bubble: boolean | undefined, rest: string): string | string[] =>
+  flash ? flashShadow(flash, rest) : bubble ? yellowBlink(rest) : rest
+const panelShadowTrans = (flash: 'up' | 'down' | null | undefined, bubble: boolean | undefined) =>
+  !flash && bubble ? { duration: 1.1, repeat: Infinity, ease: 'easeInOut' as const } : { duration: 0.35 }
+
 function Row({ e, korFocus }: { e: QualEntry; korFocus?: boolean }) {
   const { t, locale } = useT()
   // 진출(1~32)은 동일하게, 미진출(33~48)만 흐림. 컷 라인이 경계를 표시.
@@ -153,11 +164,12 @@ export function ThirdPlaceAside({
   korFocus,
   scores,
   flash,
-}: { korFocus?: boolean; scores?: ScoreMap; flash?: 'up' | 'down' | null } = {}) {
+  bubble,
+}: { korFocus?: boolean; scores?: ScoreMap; flash?: 'up' | 'down' | null; bubble?: boolean } = {}) {
   return (
     <motion.aside
-      animate={{ boxShadow: flashShadow(flash, '0 0 0 0 rgba(0,0,0,0)') }}
-      transition={{ duration: 0.4, ease: 'easeOut' }}
+      animate={{ boxShadow: panelShadow(flash, bubble, '0 0 0 0 rgba(0,0,0,0)') }}
+      transition={{ boxShadow: panelShadowTrans(flash, bubble) }}
       className="sticky top-4 hidden h-fit w-[312px] shrink-0 rounded-2xl border p-4 lg:block"
     >
       <QualPanelBody korFocus={korFocus} scores={scores} />
@@ -174,6 +186,7 @@ export function QualMorphBar({
   korFocus,
   scores,
   flash,
+  bubble,
 }: {
   complete: boolean
   filled: number
@@ -182,6 +195,7 @@ export function QualMorphBar({
   korFocus?: boolean
   scores?: ScoreMap
   flash?: 'up' | 'down' | null
+  bubble?: boolean
 }) {
   const { t } = useT()
   const [open, setOpen] = useState(false)
@@ -237,8 +251,8 @@ export function QualMorphBar({
           layout
           role={open ? 'dialog' : undefined}
           aria-modal={open || undefined}
-          animate={{ boxShadow: flashShadow(flash, '0 25px 50px -12px rgba(0,0,0,0.35)') }}
-          transition={{ layout: { duration: 0.42, ease: [0.16, 1, 0.3, 1] }, boxShadow: { duration: 0.4 } }}
+          animate={{ boxShadow: panelShadow(flash, bubble, '0 25px 50px -12px rgba(0,0,0,0.35)') }}
+          transition={{ layout: { duration: 0.42, ease: [0.16, 1, 0.3, 1] }, boxShadow: panelShadowTrans(flash, bubble) }}
           className={`overflow-hidden border ${
             open
               ? 'flex max-h-[80vh] w-full max-w-md flex-col rounded-2xl bg-background'

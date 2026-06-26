@@ -68,6 +68,8 @@ export function ScenarioBoard({
   }, [])
 
   const flashDir = flash?.dir ?? null
+  // 30·31·32등 = 진출 막차권 → 패널/네비바 노랑 깜빡 경고
+  const bubble = !!analysis.kor && analysis.kor.overall >= 30 && analysis.kor.overall <= 32
   let lastDay = ''
   return (
     <>
@@ -93,9 +95,9 @@ export function ScenarioBoard({
             )
           })}
         </div>
-        <ThirdPlaceAside korFocus scores={scores} flash={flashDir} />
+        <ThirdPlaceAside korFocus scores={scores} flash={flashDir} bubble={bubble} />
       </div>
-      <QualMorphBar korFocus scores={scores} complete={complete} filled={filled} total={total} onNext={onNext} flash={flashDir} />
+      <QualMorphBar korFocus scores={scores} complete={complete} filled={filled} total={total} onNext={onNext} flash={flashDir} bubble={bubble} />
     </>
   )
 }
