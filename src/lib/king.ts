@@ -113,12 +113,49 @@ export function formatFavorable(cond: FavorableCondition, homeId: string, awayId
   return text
 }
 
-export interface MatchAnalysis { condition: FavorableCondition | null; favorableNow: boolean }
+export interface MatchAnalysis { related: boolean; condition: FavorableCondition | null; favorableNow: boolean }
 export interface ScenarioAnalysis {
   kor: { overall: number; qualified: boolean } | null
   matches: Record<string, MatchAnalysis>
   met: number
   pivotal: number
+}
+
+function originalScores(): ScoreMap {
+  const map: ScoreMap = {}
+  for (const m of wc.groupMatches) {
+    map[m.id] = m.played && m.defaultHome != null && m.defaultAway != null ? { home: m.defaultHome, away: m.defaultAway } : null
+  }
+  return map
+}
+
+// 미입력 MD3를 무승부(0-0)로 채운 '대회 완료 가정' — KOR을 현실적 버블에 놓아 관여경기를 판정.
+function completionBaseline(scores: ScoreMap): ScoreMap {
+  const out: ScoreMap = { ...scores }
+  for (const m of matchday3Matches()) if (out[m.id] == null) out[m.id] = { home: 0, away: 0 }
+  return out
+}
+
+function satisfiesCondition(cond: FavorableCondition, h: number, a: number): boolean {
+  const side = sideOf(h, a)
+  const margin = Math.abs(h - a)
+  return cond.clauses.some(
+    (c) => c.side === side && (c.minMargin == null || margin >= c.minMargin) && (c.maxMargin == null || margin <= c.maxMargin),
+  )
+}
+
+// 관여(하이라이트) 경기 + 고정 유리조건 — 원본 데이터의 완료가정에서 1회 계산(처음부터 고정 표시).
+let _related: Map<string, FavorableCondition> | null = null
+export function relatedConditions(): Map<string, FavorableCondition> {
+  if (_related) return _related
+  const base = completionBaseline(originalScores())
+  const map = new Map<string, FavorableCondition>()
+  for (const m of matchday3Matches()) {
+    const cond = korFavorableCondition(base, m.id)
+    if (cond) map.set(m.id, cond)
+  }
+  _related = map
+  return map
 }
 
 // 같은 scores 참조면 재사용(보드·패널이 동일 객체로 각각 호출해도 1회만 계산).
@@ -133,21 +170,16 @@ export function analyzeScenario(scores: ScoreMap): ScenarioAnalysis {
 }
 
 function computeScenario(scores: ScoreMap): ScenarioAnalysis {
-  const kor = projectKorRank(scores)
+  const kor = projectKorRank(scores) // 헤드라인은 현재 실제 순위(미입력 무시)
+  const related = relatedConditions() // 하이라이트·조건은 고정(완료가정)
   const matches: Record<string, MatchAnalysis> = {}
   let met = 0
-  let pivotal = 0
   for (const m of matchday3Matches()) {
-    const condition = korFavorableCondition(scores, m.id)
-    if (condition) {
-      pivotal++
-      const s = scores[m.id]
-      const favorableNow = !!s && korQualifiedWith(scores, m.id, s.home, s.away)
-      if (favorableNow) met++
-      matches[m.id] = { condition, favorableNow }
-    } else {
-      matches[m.id] = { condition: null, favorableNow: false }
-    }
+    const condition = related.get(m.id) ?? null
+    const s = scores[m.id]
+    const favorableNow = !!condition && !!s && satisfiesCondition(condition, s.home, s.away)
+    if (favorableNow) met++
+    matches[m.id] = { related: condition != null, condition, favorableNow }
   }
-  return { kor: kor && { overall: kor.overall, qualified: kor.qualified }, matches, met, pivotal }
+  return { kor: kor && { overall: kor.overall, qualified: kor.qualified }, matches, met, pivotal: related.size }
 }

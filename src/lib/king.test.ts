@@ -1,6 +1,6 @@
 import { it, expect } from 'vitest'
 import {
-  matchday3Matches, projectKorRank, summarizeFavorable, formatFavorable, SCENARIO_TEAM,
+  matchday3Matches, projectKorRank, summarizeFavorable, formatFavorable, relatedConditions, SCENARIO_TEAM,
 } from './king'
 import { useSimulator } from '@/store/useSimulator'
 
@@ -35,6 +35,13 @@ it('formatFavorable: 마진/무승부안됨 텍스트', () => {
   expect(formatFavorable({ clauses: [{ side: 'home' }] }, 'KOR', 'JPN', 'ko')).toBe('대한민국 승리 (무승부 안됨)')
   expect(formatFavorable({ clauses: [{ side: 'away', minMargin: 2 }] }, 'KOR', 'JPN', 'ko')).toBe('일본 2점차 이상 승리')
   expect(formatFavorable({ clauses: [{ side: 'home', maxMargin: 4 }] }, 'KOR', 'JPN', 'ko')).toBe('대한민국 4점차 이하로만 승리')
+})
+
+it('relatedConditions: KOR 관여 경기 집합(>=1, KOR 자기 경기 GA-6 포함)', () => {
+  const rel = relatedConditions()
+  expect(rel.size).toBeGreaterThan(0)
+  expect(rel.size).toBeLessThanOrEqual(24)
+  expect(rel.has('GA-6')).toBe(true) // RSA v KOR — KOR 자기 경기는 항상 관여
 })
 
 it('projectKorRank: 실제 데이터에서 KOR 종합순위 1..48', () => {
