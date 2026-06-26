@@ -380,18 +380,18 @@
       "groupId": "A",
       "homeId": "CZE",
       "awayId": "MEX",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null
+      "played": true,
+      "defaultHome": 0,
+      "defaultAway": 3
     },
     {
       "id": "GA-6",
       "groupId": "A",
       "homeId": "RSA",
       "awayId": "KOR",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 0
     },
     {
       "id": "GB-1",
@@ -434,18 +434,18 @@
       "groupId": "B",
       "homeId": "SUI",
       "awayId": "CAN",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null
+      "played": true,
+      "defaultHome": 2,
+      "defaultAway": 1
     },
     {
       "id": "GB-6",
       "groupId": "B",
       "homeId": "BIH",
       "awayId": "QAT",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null
+      "played": true,
+      "defaultHome": 3,
+      "defaultAway": 1
     },
     {
       "id": "GC-1",
@@ -488,18 +488,18 @@
       "groupId": "C",
       "homeId": "SCO",
       "awayId": "BRA",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null
+      "played": true,
+      "defaultHome": 0,
+      "defaultAway": 3
     },
     {
       "id": "GC-6",
       "groupId": "C",
       "homeId": "MAR",
       "awayId": "HAI",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null
+      "played": true,
+      "defaultHome": 4,
+      "defaultAway": 2
     },
     {
       "id": "GD-1",
@@ -542,18 +542,18 @@
       "groupId": "D",
       "homeId": "TUR",
       "awayId": "USA",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null
+      "played": true,
+      "defaultHome": 3,
+      "defaultAway": 2
     },
     {
       "id": "GD-6",
       "groupId": "D",
       "homeId": "PAR",
       "awayId": "AUS",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null
+      "played": true,
+      "defaultHome": 0,
+      "defaultAway": 0
     },
     {
       "id": "GE-1",
@@ -596,18 +596,18 @@
       "groupId": "E",
       "homeId": "CUW",
       "awayId": "CIV",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null
+      "played": true,
+      "defaultHome": 0,
+      "defaultAway": 2
     },
     {
       "id": "GE-6",
       "groupId": "E",
       "homeId": "ECU",
       "awayId": "GER",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null
+      "played": true,
+      "defaultHome": 2,
+      "defaultAway": 1
     },
     {
       "id": "GF-1",
@@ -650,18 +650,18 @@
       "groupId": "F",
       "homeId": "JPN",
       "awayId": "SWE",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 1
     },
     {
       "id": "GF-6",
       "groupId": "F",
       "homeId": "TUN",
       "awayId": "NED",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 3
     },
     {
       "id": "GG-1",
@@ -911,9 +911,9 @@
       "groupId": "K",
       "homeId": "COL",
       "awayId": "COD",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 0
     },
     {
       "id": "GK-5",
