@@ -1,10 +1,5 @@
-import { Suspense } from 'react'
-import { Simulator } from '@/components/Simulator'
+import { Landing } from '@/components/Landing'
 
 export default function Home() {
-  return (
-    <Suspense>
-      <Simulator />
-    </Suspense>
-  )
+  return <Landing />
 }

@@ -43,18 +43,22 @@ export function Header() {
   const pathname = usePathname()
   const resetToDefault = useSimulator((s) => s.resetToDefault)
   const clearAll = useSimulator((s) => s.clearAll)
-  const isSim = pathname === `/${locale}`
+  // 랜딩(루트)에선 헤더 숨김 — 풀스크린 온보딩.
+  if (pathname === `/${locale}`) return null
+  const isSim = pathname.startsWith(`/${locale}/sim`)
   const linkCls = (active: boolean) =>
     `text-sm font-semibold transition-colors ${active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`
 
   return (
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="font-mona text-3xl font-extrabold tracking-tight sm:text-4xl">
-          <span className="text-primary">2026</span> {t('appTitle')}
-        </h1>
+        <Link href={`/${locale}`}>
+          <h1 className="font-mona text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <span className="text-primary">2026</span> {t('appTitle')}
+          </h1>
+        </Link>
         <nav className="mt-1.5 flex items-center gap-3">
-          <Link href={`/${locale}`} className={linkCls(isSim)}>{t('navSim')}</Link>
+          <Link href={`/${locale}/sim`} className={linkCls(isSim)}>{t('navSim')}</Link>
           <span className="text-border">·</span>
           <Link href={`/${locale}/stats`} className={linkCls(pathname.endsWith('/stats'))}>{t('navStats')}</Link>
         </nav>

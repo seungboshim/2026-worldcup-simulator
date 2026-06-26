@@ -3,12 +3,20 @@ import { siteUrl } from '@/lib/site'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date()
-  const languages = { ko: `${siteUrl}/ko`, en: `${siteUrl}/en` }
-  return (['ko', 'en'] as const).map((locale) => ({
-    url: `${siteUrl}/${locale}`,
-    lastModified,
-    changeFrequency: 'daily',
-    priority: locale === 'ko' ? 1 : 0.9,
-    alternates: { languages },
-  }))
+  const locales = ['ko', 'en'] as const
+  const paths = ['', '/sim', '/stats'] as const
+  const entries: MetadataRoute.Sitemap = []
+  for (const path of paths) {
+    const languages = Object.fromEntries(locales.map((l) => [l, `${siteUrl}/${l}${path}`]))
+    for (const locale of locales) {
+      entries.push({
+        url: `${siteUrl}/${locale}${path}`,
+        lastModified,
+        changeFrequency: path === '/sim' ? 'daily' : 'weekly',
+        priority: path === '' ? 1 : path === '/sim' ? 0.9 : 0.7,
+        alternates: { languages },
+      })
+    }
+  }
+  return entries
 }
