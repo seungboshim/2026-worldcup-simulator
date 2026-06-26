@@ -73,7 +73,9 @@ function KorHeadline() {
       </div>
       <div className={`mt-0.5 text-sm font-bold ${ok ? 'text-primary' : 'text-red-500'}`}>
         {ok ? t('korQualified') : t('korEliminated')}
-        <span className="ml-1.5 font-normal text-muted-foreground">· {t('favorableMet', { met: a.met, total: a.pivotal })}</span>
+        {a.pivotal > 0 && (
+          <span className="ml-1.5 font-normal text-muted-foreground">· {t('favorableMet', { met: a.met, total: a.pivotal })}</span>
+        )}
       </div>
     </div>
   )
