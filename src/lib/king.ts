@@ -121,8 +121,18 @@ export interface ScenarioAnalysis {
   pivotal: number
 }
 
+// 같은 scores 참조면 재사용(보드·패널이 동일 객체로 각각 호출해도 1회만 계산).
+let _cache: { scores: ScoreMap; result: ScenarioAnalysis } | null = null
+
 // UI가 점수 변경 시 1회 호출(메모이즈).
 export function analyzeScenario(scores: ScoreMap): ScenarioAnalysis {
+  if (_cache && _cache.scores === scores) return _cache.result
+  const result = computeScenario(scores)
+  _cache = { scores, result }
+  return result
+}
+
+function computeScenario(scores: ScoreMap): ScenarioAnalysis {
   const kor = projectKorRank(scores)
   const matches: Record<string, MatchAnalysis> = {}
   let met = 0

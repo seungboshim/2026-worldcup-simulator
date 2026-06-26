@@ -1,19 +1,26 @@
 'use client'
-import type { GroupMatch } from '@/types'
+import type { GroupMatch, Score } from '@/types'
 import type { MatchAnalysis } from '@/lib/king'
 import { formatFavorable } from '@/lib/king'
-import { useSimulator } from '@/store/useSimulator'
 import { teamFlag, teamName } from '@/lib/teams'
 import { useT } from '@/i18n/useT'
 
-export function ScenarioMatchRow({ match, analysis }: { match: GroupMatch; analysis: MatchAnalysis }) {
+export function ScenarioMatchRow({
+  match,
+  analysis,
+  score,
+  onScore,
+}: {
+  match: GroupMatch
+  analysis: MatchAnalysis
+  score: Score | null | undefined
+  onScore: (matchId: string, score: Score) => void
+}) {
   const { t, locale } = useT()
-  const score = useSimulator((s) => s.scores[match.id])
-  const setScore = useSimulator((s) => s.setScore)
   const filled = score != null
   const h = score?.home ?? 0
   const a = score?.away ?? 0
-  const update = (home: number, away: number) => setScore(match.id, { home: Math.max(0, home), away: Math.max(0, away) })
+  const update = (home: number, away: number) => onScore(match.id, { home: Math.max(0, home), away: Math.max(0, away) })
 
   const pivotal = analysis.condition != null
   const conditionText = analysis.condition ? formatFavorable(analysis.condition, match.homeId, match.awayId, locale) : null
@@ -21,7 +28,9 @@ export function ScenarioMatchRow({ match, analysis }: { match: GroupMatch; analy
   return (
     <div
       data-unfilled={!filled || undefined}
-      className={`rounded-xl border p-3 transition-colors ${pivotal ? 'border-primary/40' : ''} ${filled ? '' : 'opacity-60'}`}
+      className={`rounded-xl p-3 transition-colors ${
+        pivotal ? 'border-2 border-primary bg-primary/[0.06]' : 'border'
+      } ${filled ? '' : 'opacity-70'}`}
     >
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
         <button
@@ -58,18 +67,21 @@ export function ScenarioMatchRow({ match, analysis }: { match: GroupMatch; analy
         </button>
       </div>
 
-      <div className="mt-2 flex items-center gap-2 text-xs">
-        {pivotal ? (
-          <>
-            <span className={`shrink-0 rounded px-1.5 py-0.5 font-semibold ${analysis.favorableNow ? 'bg-primary text-primary-foreground' : 'border border-primary/40 text-primary'}`}>
-              {analysis.favorableNow ? '✓' : '🇰🇷'} {t('favorableNeeds')}
-            </span>
-            <span className="min-w-0 truncate text-muted-foreground">{conditionText}</span>
-          </>
-        ) : (
-          <span className="rounded bg-muted px-1.5 py-0.5 font-semibold text-muted-foreground">{t('notPivotal')}</span>
-        )}
-      </div>
+      {pivotal ? (
+        <div className="mt-2 flex items-center gap-2 text-xs">
+          <span
+            className={`shrink-0 rounded px-1.5 py-0.5 font-bold ${
+              analysis.favorableNow ? 'bg-primary text-primary-foreground' : 'bg-primary/15 text-primary'
+            }`}
+          >
+            {analysis.favorableNow ? '✓ ' : '🇰🇷 '}
+            {t('decisiveTag')}
+          </span>
+          <span className="min-w-0 truncate text-muted-foreground">{conditionText}</span>
+        </div>
+      ) : (
+        <div className="mt-1.5 text-[11px] text-muted-foreground/60">{t('notPivotal')}</div>
+      )}
     </div>
   )
 }

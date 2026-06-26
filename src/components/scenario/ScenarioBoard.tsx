@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useMemo, useRef } from 'react'
-import { useSimulator } from '@/store/useSimulator'
+import type { Score, ScoreMap } from '@/types'
 import { matchday3Matches, analyzeScenario } from '@/lib/king'
 import { ScenarioMatchRow } from './ScenarioMatchRow'
 import { ThirdPlaceAside, QualMorphBar } from '@/components/ThirdPlacePanel'
@@ -21,26 +21,32 @@ function timeLabel(iso: string | undefined, locale: Locale): string {
 }
 
 export function ScenarioBoard({
+  scores,
+  onScore,
   complete,
   onNext,
   filled,
   total,
 }: {
+  scores: ScoreMap
+  onScore: (matchId: string, score: Score) => void
   complete: boolean
   onNext: () => void
   filled: number
   total: number
 }) {
   const { locale } = useT()
-  const scores = useSimulator((s) => s.scores)
   const md3 = useMemo(() => matchday3Matches(), [])
   const analysis = useMemo(() => analyzeScenario(scores), [scores])
   const listRef = useRef<HTMLDivElement>(null)
 
-  // 마운트 시 첫 미입력 경기로 스크롤.
+  // 진입 시 첫 미예측 경기로 부드럽게 중앙 스크롤.
   useEffect(() => {
-    const el = listRef.current?.querySelector('[data-unfilled]') as HTMLElement | null
-    el?.scrollIntoView({ block: 'center' })
+    const id = requestAnimationFrame(() => {
+      const el = listRef.current?.querySelector('[data-unfilled]') as HTMLElement | null
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
+    return () => cancelAnimationFrame(id)
   }, [])
 
   let lastDay = ''
@@ -55,13 +61,13 @@ export function ScenarioBoard({
             <div key={m.id}>
               {showHeader && <h3 className="mt-4 mb-1.5 text-sm font-bold text-muted-foreground first:mt-0">{day}</h3>}
               {m.utcDate && <div className="mb-1 font-mona text-[11px] tabular-nums text-muted-foreground">{timeLabel(m.utcDate, locale)}</div>}
-              <ScenarioMatchRow match={m} analysis={analysis.matches[m.id]} />
+              <ScenarioMatchRow match={m} analysis={analysis.matches[m.id]} score={scores[m.id]} onScore={onScore} />
             </div>
           )
         })}
       </div>
-      <ThirdPlaceAside korFocus />
-      <QualMorphBar korFocus complete={complete} filled={filled} total={total} onNext={onNext} />
+      <ThirdPlaceAside korFocus scores={scores} />
+      <QualMorphBar korFocus scores={scores} complete={complete} filled={filled} total={total} onNext={onNext} />
     </div>
   )
 }

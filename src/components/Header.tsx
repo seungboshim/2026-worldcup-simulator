@@ -56,8 +56,6 @@ export function Header() {
         <nav className="mt-1.5 flex items-center gap-3">
           <Link href={`/${locale}`} className={linkCls(isSim)}>{t('navSim')}</Link>
           <span className="text-border">·</span>
-          <Link href={`/${locale}?tab=scenario`} className={linkCls(false)}>{t('navScenario')}</Link>
-          <span className="text-border">·</span>
           <Link href={`/${locale}/stats`} className={linkCls(pathname.endsWith('/stats'))}>{t('navStats')}</Link>
         </nav>
       </div>

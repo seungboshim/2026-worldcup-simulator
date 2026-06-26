@@ -1,7 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useSimulator } from '@/store/useSimulator'
+import { useSimulator, defaultScores } from '@/store/useSimulator'
+import { matchday3Matches } from '@/lib/king'
+import type { Score, ScoreMap } from '@/types'
 import { GroupStage } from '@/components/group/GroupStage'
 import { ScenarioBoard } from '@/components/scenario/ScenarioBoard'
 import { Bracket } from '@/components/knockout/Bracket'
@@ -22,6 +24,17 @@ export function Simulator() {
   const filled = Object.values(scores).filter((v) => v != null).length
   const complete = total > 0 && filled >= total
 
+  // 킹우의수: 영속 store와 독립. 진입(마운트=페이지 로드) 시 원본 데이터로 시작.
+  const [scenarioScores, setScenarioScores] = useState<ScoreMap>(defaultScores)
+  const setScenarioScore = useCallback(
+    (id: string, sc: Score) => setScenarioScores((prev) => ({ ...prev, [id]: sc })),
+    [],
+  )
+  const md3Ids = useMemo(() => matchday3Matches().map((m) => m.id), [])
+  const scTotal = md3Ids.length
+  const scFilled = md3Ids.filter((id) => scenarioScores[id] != null).length
+  const scComplete = scFilled === scTotal
+
   const urlTab = params.get('tab')
   const wanted: Tab = urlTab === 'scenario' || urlTab === 'knockout' || urlTab === 'group' ? urlTab : 'group'
   const initial: Tab = wanted === 'knockout' && !complete ? 'group' : wanted
@@ -31,6 +44,12 @@ export function Simulator() {
     setTab(v as Tab)
     router.replace(`${pathname}?tab=${v}`, { scroll: false })
     window.scrollTo({ top: 0 })
+  }
+
+  // 다 예측 후 토너먼트로 갈 때만 시나리오 점수를 store(=localStorage)에 저장.
+  const goKnockout = () => {
+    useSimulator.setState({ scores: scenarioScores })
+    changeTab('knockout')
   }
 
   return (
@@ -73,7 +92,14 @@ export function Simulator() {
       </TabsContent>
 
       <TabsContent value="scenario" className="min-w-0">
-        <ScenarioBoard complete={complete} filled={filled} total={total} onNext={() => changeTab('knockout')} />
+        <ScenarioBoard
+          scores={scenarioScores}
+          onScore={setScenarioScore}
+          complete={scComplete}
+          filled={scFilled}
+          total={scTotal}
+          onNext={goKnockout}
+        />
       </TabsContent>
 
       <TabsContent value="knockout" className="min-w-0">

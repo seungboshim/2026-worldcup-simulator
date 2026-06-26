@@ -5,6 +5,7 @@ import { useSimulator } from '@/store/useSimulator'
 import { selectQualificationRanking } from '@/store/selectors'
 import { analyzeScenario, SCENARIO_TEAM } from '@/lib/king'
 import type { QualEntry } from '@/lib/standings'
+import type { ScoreMap } from '@/types'
 import { teamFlag, teamAbbr, teamName } from '@/lib/teams'
 import { Button } from '@/components/ui/button'
 import { useT } from '@/i18n/useT'
@@ -56,9 +57,8 @@ function Toggle({ open, onClick, more, less, suffix, dir }: {
 }
 
 // 시나리오 탭: 대한민국 현재 등수·진출여부·유리결과 충족(라이브, 모션).
-function KorHeadline() {
+function KorHeadline({ scores }: { scores: ScoreMap }) {
   const { t, locale } = useT()
-  const scores = useSimulator((s) => s.scores)
   const a = useMemo(() => analyzeScenario(scores), [scores])
   if (!a.kor) return null
   const ok = a.kor.qualified
@@ -82,9 +82,10 @@ function KorHeadline() {
 }
 
 // 모바일 접힌 알약용 KOR 등수 라벨.
-function KorPill() {
+function KorPill({ scores: scoresProp }: { scores?: ScoreMap }) {
   const { t, locale } = useT()
-  const scores = useSimulator((s) => s.scores)
+  const storeScores = useSimulator((s) => s.scores)
+  const scores = scoresProp ?? storeScores
   const a = useMemo(() => analyzeScenario(scores), [scores])
   if (!a.kor) return <>{teamFlag(SCENARIO_TEAM)} {teamName(SCENARIO_TEAM, locale)}</>
   return (
@@ -94,9 +95,10 @@ function KorPill() {
   )
 }
 
-export function QualPanelBody({ korFocus }: { korFocus?: boolean } = {}) {
+export function QualPanelBody({ korFocus, scores: scoresProp }: { korFocus?: boolean; scores?: ScoreMap } = {}) {
   const { t } = useT()
-  const scores = useSimulator((s) => s.scores)
+  const storeScores = useSimulator((s) => s.scores)
+  const scores = scoresProp ?? storeScores
   const [expandedTop, setExpandedTop] = useState(false)
   const [expandedBottom, setExpandedBottom] = useState(false)
   const all = selectQualificationRanking(scores)
@@ -107,7 +109,7 @@ export function QualPanelBody({ korFocus }: { korFocus?: boolean } = {}) {
 
   return (
     <div>
-      {korFocus ? <KorHeadline /> : <h2 className="mb-3 text-lg font-bold tracking-tight">{t('qualStatus')}</h2>}
+      {korFocus ? <KorHeadline scores={scores} /> : <h2 className="mb-3 text-lg font-bold tracking-tight">{t('qualStatus')}</h2>}
 
       {/* 위쪽: 1~24위(진출 확정) 더보기 */}
       <Toggle open={expandedTop} onClick={() => setExpandedTop((v) => !v)} more="showRanksMore" less="showRanksLess" suffix="confirmedSuffix" dir="up" />
@@ -141,10 +143,10 @@ export function QualPanelBody({ korFocus }: { korFocus?: boolean } = {}) {
 }
 
 // 데스크탑: 우측 sticky 패널
-export function ThirdPlaceAside({ korFocus }: { korFocus?: boolean } = {}) {
+export function ThirdPlaceAside({ korFocus, scores }: { korFocus?: boolean; scores?: ScoreMap } = {}) {
   return (
     <aside className="sticky top-4 hidden h-fit w-[312px] shrink-0 rounded-2xl border p-4 lg:block">
-      <QualPanelBody korFocus={korFocus} />
+      <QualPanelBody korFocus={korFocus} scores={scores} />
     </aside>
   )
 }
@@ -156,12 +158,14 @@ export function QualMorphBar({
   total,
   onNext,
   korFocus,
+  scores,
 }: {
   complete: boolean
   filled: number
   total: number
   onNext: () => void
   korFocus?: boolean
+  scores?: ScoreMap
 }) {
   const { t } = useT()
   const [open, setOpen] = useState(false)
@@ -241,7 +245,7 @@ export function QualMorphBar({
                   <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-6 bg-gradient-to-b from-background to-transparent" />
                 )}
                 <div ref={scrollRef} onScroll={recomputeFade} className="h-full overflow-y-auto px-4">
-                  <QualPanelBody korFocus={korFocus} />
+                  <QualPanelBody korFocus={korFocus} scores={scores} />
                 </div>
                 {fade.bottom && (
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-6 bg-gradient-to-t from-background to-transparent" />
@@ -277,7 +281,7 @@ export function QualMorphBar({
                 onClick={() => setOpen(true)}
                 className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold"
               >
-                {korFocus ? <KorPill /> : <>🥉 {t('qualStatusButton')}</>}
+                {korFocus ? <KorPill scores={scores} /> : <>🥉 {t('qualStatusButton')}</>}
               </button>
               {/* 넓은 데스크탑 플로팅 버튼과 동일 스타일(크기만 작게): 미완료=어두운 알약, 완료=녹색 알약 */}
               {complete ? (

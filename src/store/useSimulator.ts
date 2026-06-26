@@ -5,7 +5,7 @@ import type { Score, ScoreMap, WorldCupData } from '@/types'
 
 const wc = data as unknown as WorldCupData
 
-function defaultScores(): ScoreMap {
+export function defaultScores(): ScoreMap {
   const map: ScoreMap = {}
   for (const m of wc.groupMatches) {
     map[m.id] =
