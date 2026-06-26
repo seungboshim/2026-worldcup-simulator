@@ -2,7 +2,7 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
 import { Button } from '@/components/ui/button'
-import { teamFlag, teamName } from '@/lib/teams'
+import { teamFlag, teamName, teamCode } from '@/lib/teams'
 import { useT } from '@/i18n/useT'
 import type { DictKey } from '@/i18n/dictionaries'
 import type { Locale } from '@/i18n/config'
@@ -29,7 +29,7 @@ function CryingPlayer() {
       src="/images/crying-player.png"
       alt=""
       onError={() => setErr(true)}
-      className="mx-auto h-44 w-auto [image-rendering:pixelated]"
+      className="mx-auto w-full rounded-xl"
       draggable={false}
     />
   )
@@ -119,8 +119,6 @@ function StandingsWaverDemo() {
     return () => clearInterval(id)
   }, [])
 
-  const wdl = locale === 'en' ? ['W', 'D', 'L'] : ['승', '무', '패']
-  const pressed = up ? 0 : 1 // 이집트 승(→KOR 진출) ↔ 무승부(→KOR 탈락)
   const rows = [
     { id: 'KOR', rank: up ? 32 : 33, kor: true },
     { id: 'SEN', rank: up ? 33 : 32, kor: false },
@@ -128,20 +126,28 @@ function StandingsWaverDemo() {
 
   return (
     <div className="text-left">
-      {/* 원인: 어느 경기의 승무패가 자동으로 눌림 */}
-      <div className="mb-3 flex items-center justify-center gap-2">
-        <span className="text-sm text-muted-foreground">{teamName('EGY', locale)} vs {teamName('IRN', locale)}</span>
-        <div className="flex gap-0.5">
-          {wdl.map((w, i) => (
-            <motion.span
-              key={w}
-              animate={{ scale: i === pressed ? 0.9 : 1 }}
-              transition={{ duration: 0.2 }}
-              className={`rounded px-1.5 py-0.5 text-xs font-bold ${i === pressed ? 'bg-primary text-primary-foreground' : 'border border-border text-muted-foreground'}`}
-            >
-              {w}
-            </motion.span>
-          ))}
+      {/* 원인: 실제 국가/전광판 UI가 자동으로 결과를 바꿈(이집트 1-0 ↔ 0-0) */}
+      <div className="mb-3 rounded-xl border p-2.5">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
+          <span className="flex min-w-0 items-center justify-end gap-1.5">
+            <span className="truncate">{teamName('EGY', locale)}</span>
+            <span className="text-base leading-none">{teamFlag('EGY')}</span>
+          </span>
+          <motion.span
+            key={up ? 'a' : 'b'}
+            initial={{ scale: 0.82 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.25 }}
+            className="font-mona rounded-md bg-board px-2.5 py-1 font-bold text-board-ink tabular-nums shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]"
+          >
+            {up ? 1 : 0}
+            <span className="opacity-50"> : </span>
+            0
+          </motion.span>
+          <span className="flex min-w-0 items-center justify-start gap-1.5">
+            <span className="text-base leading-none">{teamFlag('IRN')}</span>
+            <span className="truncate">{teamName('IRN', locale)}</span>
+          </span>
         </div>
       </div>
       <div className="space-y-1.5">
@@ -151,6 +157,35 @@ function StandingsWaverDemo() {
             <WaverRow {...r} flash={flash} locale={locale} t={t} />
           </Fragment>
         ))}
+      </div>
+    </div>
+  )
+}
+
+// 슬라이드4: 토너먼트 시뮬 미리보기 — 8강→4강→우승 미니 브래킷(승자 강조).
+function BracketBox({ id, win }: { id: string; win?: boolean }) {
+  return (
+    <div className={`flex items-center gap-1 rounded-md border px-1.5 py-1 text-[11px] ${win ? 'border-primary bg-primary/10 font-bold' : 'opacity-55'}`}>
+      <span className="text-xs leading-none">{teamFlag(id)}</span>
+      <span className="font-mona tabular-nums">{teamCode(id)}</span>
+      {win && <span className="ml-auto text-primary">✓</span>}
+    </div>
+  )
+}
+function BracketPreview() {
+  return (
+    <div className="flex items-stretch gap-2">
+      <div className="flex flex-1 flex-col justify-around gap-3">
+        <div className="space-y-1"><BracketBox id="BRA" win /><BracketBox id="FRA" /></div>
+        <div className="space-y-1"><BracketBox id="ESP" /><BracketBox id="ARG" win /></div>
+      </div>
+      <div className="flex flex-1 flex-col justify-center gap-1">
+        <BracketBox id="BRA" win />
+        <BracketBox id="ARG" />
+      </div>
+      <div className="flex shrink-0 flex-col items-center justify-center gap-0.5">
+        <span className="text-2xl leading-none">🏆</span>
+        <span className="font-mona text-[11px] font-bold">{teamCode('BRA')}</span>
       </div>
     </div>
   )
@@ -197,9 +232,9 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
       >
         {/* 0: 로고 — 흰 폰트 가독성 위해 뒤에 검은 방사형 그래디언트 */}
         <div className="flex w-full shrink-0 snap-center items-center justify-center p-6">
-          <div className="mx-auto w-full max-w-[460px] p-10" style={{ background: 'radial-gradient(ellipse 60% 45% at 50% 50%, rgba(0,0,0,0.62), rgba(0,0,0,0) 72%)' }}>
+          <div className="mx-auto w-full max-w-[520px] px-3 py-10" style={{ background: 'radial-gradient(ellipse 62% 46% at 50% 50%, rgba(0,0,0,0.62), rgba(0,0,0,0) 72%)' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/landing-title.png" alt={t('appTitle')} className="mx-auto w-full max-w-[360px]" draggable={false} />
+            <img src="/images/landing-title.png" alt={t('appTitle')} className="mx-auto w-full max-w-[460px]" draggable={false} />
           </div>
         </div>
 
@@ -224,8 +259,10 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
           <StandingsWaverDemo />
         </Slide>
 
-        {/* 4: 조별·토너먼트 시뮬도 */}
-        <Slide icon="🏆" title="ob3Title" body="ob3Body" />
+        {/* 4: 조별·토너먼트 시뮬도 + 브래킷 미리보기 */}
+        <Slide icon="🏆" title="ob3Title" body="ob3Body">
+          <BracketPreview />
+        </Slide>
       </div>
 
       <div className="flex flex-col items-center gap-4 px-6 pb-10">
