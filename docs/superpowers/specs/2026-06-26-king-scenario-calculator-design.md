@@ -34,6 +34,7 @@
 - 이미 끝난 경기는 채워져 풀 불투명, 미입력은 흐림. **마운트 시 첫 미입력 경기로 자동 스크롤**.
 - 행 = **한 경기 한 줄**: [홈 국기·이름·점수] [전광판] [원정 점수·이름·국기].
   - 인터랙션은 **기존 조별(`MatchCard`)과 동일**: 국가 탭 → 해당 팀 +1, 전광판 탭 → 0:0 초기화, ▲▼ 세부 핸들. (승무패 토글 아님.)
+- **한국 경우의 수 주석**(이미지 참고): 각 행에 그 경기의 **한국에 유리한 결과**를 실시간 표시 — 승/무/패 + 골차 마진까지(예 "알제리 2점차 이상 승리", "이라크 4점차 이하로만 승리", "이집트 승리(무승부 안됨)"). 한국 진출에 영향 없는 경기는 **꽝**. 현재 입력 결과가 유리 조건을 충족하면 ✓ 강조, 불충족이면 흐리게. 디자인은 우리 톤(골드/스탬프 키치 X).
 
 ---
 
@@ -41,11 +42,14 @@
 
 `src/lib/king.ts` (유닛테스트 대상):
 
-- `projectKorRank(scores): { overall: number; qualified: boolean; entry: QualEntry } | null` — 현재 예측 기준 KOR의 종합 순위·진출여부(`computeQualificationRanking` 재사용). 부분입력도 처리(미입력 경기는 미반영).
-- `isPivotalForKor(scores, matchId): boolean` — 해당 MD3 경기의 결과를 **승/무/패 3가지(1-0 / 0-0 / 0-1)** 로 바꿔 KOR `qualified`가 갈리면 `true`(=중요경기). 다른 경기는 현재값 고정.
+- `projectKorRank(scores): { overall: number; qualified: boolean; entry: QualEntry } | null` — 현재 예측 기준 KOR 종합 순위·진출여부(`computeQualificationRanking` 재사용). 부분입력도 처리(미입력 경기는 미반영).
+- `korFavorableCondition(scores, matchId): FavorableCondition | null` — 해당 경기의 **스코어라인 완전탐색**(홈/원정 0..6, 다른 경기는 현재값 고정)으로 KOR `qualified`가 참이 되는 결과 집합을 구해 사람이 읽는 조건으로 요약. 결과별(홈승/무/원정승) + 마진 임계(예 "2점차 이상", "N점차 이하로만"). 진출이 이 경기와 무관(항상 진출 or 절대 불가)하면 `null`(=꽝).
+  - 타입: `FavorableCondition = { clauses: Array<{ side: 'home' | 'away' | 'draw'; minMargin?: number; maxMargin?: number }> }`. UI는 `formatFavorable(cond, homeId, awayId, locale)`로 텍스트화.
   - KOR 조 경기 + KOR이 3위 버블이면 타조 3위경쟁 경기까지 자동 포착.
-- `korOutcomeHint(scores, matchId): 'good' | 'bad' | 'neutral' | null` — 현재 입력된 결과가 KOR 진출에 유리/불리한지(선택적, 중요경기 행 표시용).
-- 비용: 경기당 3회 랭킹 계산(저렴). 24경기여도 실시간 가능. 필요 시 메모이즈.
+- `isPivotalForKor(scores, matchId): boolean` = `korFavorableCondition(...) !== null`.
+- `isFavorableNow(scores, matchId): boolean` — 현재 입력된 스코어가 유리 조건을 충족하는지(행 ✓/흐림 + 헤드라인 카운트용).
+- `korMetCount(scores): { met: number; pivotal: number }` — 충족한 중요경기 수 / 전체 중요경기 수.
+- 비용: 경기당 ~49회 랭킹 계산(랭킹은 μs급). 점수 변경 시 `useMemo`로 1회 계산, 중요경기만 조건 산출.
 
 ---
 
@@ -53,7 +57,7 @@
 
 - 기존 `QualPanelBody`/`ThirdPlaceAside`/`QualMorphBar`에 **`korFocus` 프로프** 추가:
   - 패널 내 **KOR 행 하이라이트**(bg-primary/10, 볼드, 🇰🇷).
-  - 모바일 하단 fixed 알약·헤더가 **"🇰🇷 대한민국 현재 N등 · 32강 진출!/탈락권"** 을 크게 표시(진출=초록, 탈락권=빨강).
+  - 모바일 하단 fixed 알약·헤더가 **"🇰🇷 대한민국 현재 N등 · 32강 진출!/탈락권"** 을 크게 표시(진출=초록, 탈락권=빨강) + **"유리한 결과 K/M개 충족"**(라이브).
   - PC는 우측 sticky 패널 동일 하이라이트.
 - 스코어 변경 시 **실시간 갱신** — 순위 숫자에 모션(예: 변할 때 살짝 펄스)으로 익사이팅하게.
 - 시나리오 탭에서는 이 패널이 **MD3 리스트 옆(PC)/아래 fixed(모바일)** 로 동작(조별 탭과 동일 레이아웃 패턴).
@@ -70,12 +74,12 @@
 
 | 파일 | 역할 |
 |------|------|
-| `src/lib/king.ts` | `SCENARIO_TEAM`, `matchday3Matches`, `projectKorRank`, `isPivotalForKor`, `korOutcomeHint`(순수, 테스트) |
-| `src/lib/king.test.ts` | 민감도·MD3·투영 테스트 |
+| `src/lib/king.ts` | `SCENARIO_TEAM`, `matchday3Matches`, `projectKorRank`, `korFavorableCondition`, `formatFavorable`, `isPivotalForKor`, `isFavorableNow`, `korMetCount`(순수, 테스트) |
+| `src/lib/king.test.ts` | 민감도·유리조건(마진)·MD3·투영 테스트 |
 | `scripts/enrich-kickoffs.ts` | API `utcDate`를 데이터에 1회 주입 |
 | `src/types.ts` (수정) | `GroupMatch.utcDate?: string` |
 | `src/components/scenario/ScenarioBoard.tsx` | 탭 본문(MD3 리스트 + 자동스크롤 + 날짜헤더) |
-| `src/components/scenario/ScenarioMatchRow.tsx` | 한 줄 경기 행(조별식 인터랙션 + 중요경기 하이라이트 + 시각) |
+| `src/components/scenario/ScenarioMatchRow.tsx` | 한 줄 경기 행(조별식 인터랙션 + 유리조건/꽝 주석 + ✓ + 시각) |
 | `src/components/ThirdPlacePanel.tsx` (수정) | `korFocus` 프로프(하이라이트 + KOR N등 헤더) |
 | `src/components/Simulator.tsx` (수정) | scenario 탭 추가 + `?tab` 동기화 + 토너먼트 핸드오프 |
 | `src/components/Header.tsx` (수정) | "킹우의수" nav(`?tab=scenario`) |
@@ -87,7 +91,8 @@
 
 - 시나리오 점수의 URL 인코딩(받는 사람이 동일 점수). 공유는 **탭 URL 링크**만(점수는 각자 localStorage).
 - 대상 팀 변경(?team=) — KOR 고정.
-- 골디퍼런스 마진 단위 민감도(중요경기는 승/무/패 기준).
+- **정적 "N개 맞으면 무조건 진출" 보장 계산**(조합 보장 문제) — 라이브 "현재 N등 + 유리결과 K/M개 충족"으로 대체.
+- **조별 카드 그리드 레이아웃**(이미지) — 시간순 한 줄 리스트 채택(이미지의 유리조건 콘텐츠만 행 주석으로 흡수).
 - 킥오프 실시간 갱신(정적 1회 enrich로 충분).
 
 ---
