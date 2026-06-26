@@ -67,31 +67,35 @@ export function ScenarioBoard({
     return () => cancelAnimationFrame(id)
   }, [])
 
+  const flashDir = flash?.dir ?? null
   let lastDay = ''
   return (
-    <div className="flex gap-5 pb-28 lg:pb-5">
-      <div ref={listRef} className="min-w-0 flex-1 space-y-2">
-        {md3.map((m) => {
-          const day = dateHeader(m.utcDate, locale)
-          const showHeader = !!day && day !== lastDay
-          lastDay = day
-          return (
-            <div key={m.id}>
-              {showHeader && <h3 className="mt-4 mb-1.5 text-sm font-bold text-muted-foreground first:mt-0">{day}</h3>}
-              {m.utcDate && <div className="mb-1 font-mona text-[11px] tabular-nums text-muted-foreground">{timeLabel(m.utcDate, locale)}</div>}
-              <ScenarioMatchRow
-                match={m}
-                analysis={analysis.matches[m.id]}
-                score={scores[m.id]}
-                onScore={handleScore}
-                flash={flash && flash.matchId === m.id ? flash.dir : null}
-              />
-            </div>
-          )
-        })}
+    <>
+      {/* morphbar는 flex 밖(모바일에서 gap-5가 우측 빈칸 만드는 것 방지) */}
+      <div className="flex gap-5 pb-28 lg:pb-5">
+        <div ref={listRef} className="min-w-0 flex-1 space-y-2.5">
+          {md3.map((m) => {
+            const day = dateHeader(m.utcDate, locale)
+            const showHeader = !!day && day !== lastDay
+            lastDay = day
+            return (
+              <div key={m.id}>
+                {showHeader && <h3 className="mt-5 mb-2 text-base font-bold text-muted-foreground first:mt-0">{day}</h3>}
+                {m.utcDate && <div className="mb-1 font-mona text-xs tabular-nums text-muted-foreground">{timeLabel(m.utcDate, locale)}</div>}
+                <ScenarioMatchRow
+                  match={m}
+                  analysis={analysis.matches[m.id]}
+                  score={scores[m.id]}
+                  onScore={handleScore}
+                  flash={flash && flash.matchId === m.id ? flash.dir : null}
+                />
+              </div>
+            )
+          })}
+        </div>
+        <ThirdPlaceAside korFocus scores={scores} flash={flashDir} />
       </div>
-      <ThirdPlaceAside korFocus scores={scores} />
-      <QualMorphBar korFocus scores={scores} complete={complete} filled={filled} total={total} onNext={onNext} />
-    </div>
+      <QualMorphBar korFocus scores={scores} complete={complete} filled={filled} total={total} onNext={onNext} flash={flashDir} />
+    </>
   )
 }

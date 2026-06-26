@@ -14,6 +14,12 @@ import type { DictKey } from '@/i18n/dictionaries'
 const tierKey = (tier: number): DictKey =>
   tier === 1 ? 'pos1' : tier === 2 ? 'pos2' : tier === 5 ? 'pos4' : 'pos3'
 
+// 순위 변동 강조 그림자(경기 행과 동일): 상승=초록 / 하락=빨강 / 평상 = rest.
+const SHADOW_UP = '0 8px 24px rgba(34, 197, 94, 0.45)'
+const SHADOW_DOWN = '0 8px 24px rgba(239, 68, 68, 0.45)'
+const flashShadow = (f: 'up' | 'down' | null | undefined, rest: string) =>
+  f === 'up' ? SHADOW_UP : f === 'down' ? SHADOW_DOWN : rest
+
 function Row({ e, korFocus }: { e: QualEntry; korFocus?: boolean }) {
   const { t, locale } = useT()
   // 진출(1~32)은 동일하게, 미진출(33~48)만 흐림. 컷 라인이 경계를 표시.
@@ -143,11 +149,19 @@ export function QualPanelBody({ korFocus, scores: scoresProp }: { korFocus?: boo
 }
 
 // 데스크탑: 우측 sticky 패널
-export function ThirdPlaceAside({ korFocus, scores }: { korFocus?: boolean; scores?: ScoreMap } = {}) {
+export function ThirdPlaceAside({
+  korFocus,
+  scores,
+  flash,
+}: { korFocus?: boolean; scores?: ScoreMap; flash?: 'up' | 'down' | null } = {}) {
   return (
-    <aside className="sticky top-4 hidden h-fit w-[312px] shrink-0 rounded-2xl border p-4 lg:block">
+    <motion.aside
+      animate={{ boxShadow: flashShadow(flash, '0 0 0 0 rgba(0,0,0,0)') }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="sticky top-4 hidden h-fit w-[312px] shrink-0 rounded-2xl border p-4 lg:block"
+    >
       <QualPanelBody korFocus={korFocus} scores={scores} />
-    </aside>
+    </motion.aside>
   )
 }
 
@@ -159,6 +173,7 @@ export function QualMorphBar({
   onNext,
   korFocus,
   scores,
+  flash,
 }: {
   complete: boolean
   filled: number
@@ -166,6 +181,7 @@ export function QualMorphBar({
   onNext: () => void
   korFocus?: boolean
   scores?: ScoreMap
+  flash?: 'up' | 'down' | null
 }) {
   const { t } = useT()
   const [open, setOpen] = useState(false)
@@ -221,8 +237,9 @@ export function QualMorphBar({
           layout
           role={open ? 'dialog' : undefined}
           aria-modal={open || undefined}
-          transition={{ layout: { duration: 0.42, ease: [0.16, 1, 0.3, 1] } }}
-          className={`overflow-hidden border shadow-2xl ${
+          animate={{ boxShadow: flashShadow(flash, '0 25px 50px -12px rgba(0,0,0,0.35)') }}
+          transition={{ layout: { duration: 0.42, ease: [0.16, 1, 0.3, 1] }, boxShadow: { duration: 0.4 } }}
+          className={`overflow-hidden border ${
             open
               ? 'flex max-h-[80vh] w-full max-w-md flex-col rounded-2xl bg-background'
               : 'rounded-full bg-background/95 backdrop-blur'

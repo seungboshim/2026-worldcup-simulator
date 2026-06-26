@@ -48,13 +48,13 @@ export function ScenarioMatchRow({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.25 }}
-            className={`pointer-events-none absolute right-3 top-2 text-xs font-bold ${flash === 'up' ? 'text-primary' : 'text-red-500'}`}
+            className={`pointer-events-none absolute right-3 top-2 text-sm font-bold ${flash === 'up' ? 'text-primary' : 'text-red-500'}`}
           >
             {flash === 'up' ? t('rankUp') : t('rankDown')}
           </motion.span>
         )}
       </AnimatePresence>
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-base">
         <button
           type="button"
           onClick={() => update(h + 1, a)}
@@ -90,7 +90,7 @@ export function ScenarioMatchRow({
       </div>
 
       {pivotal ? (
-        <div className="mt-2 flex items-center gap-2 text-xs">
+        <div className="mt-2 flex items-center gap-2 text-sm">
           <span
             className={`shrink-0 rounded px-1.5 py-0.5 font-bold ${
               analysis.favorableNow ? 'bg-primary text-primary-foreground' : 'bg-primary/15 text-primary'
@@ -102,7 +102,7 @@ export function ScenarioMatchRow({
           <span className="min-w-0 truncate text-muted-foreground">{conditionText}</span>
         </div>
       ) : (
-        <div className="mt-1.5 text-[11px] text-muted-foreground/60">{t('notPivotal')}</div>
+        <div className="mt-1.5 text-xs text-muted-foreground/60">{t('notPivotal')}</div>
       )}
     </motion.div>
   )
