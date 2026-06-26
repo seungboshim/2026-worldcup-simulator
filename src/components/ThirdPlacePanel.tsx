@@ -1,10 +1,11 @@
 'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useSimulator } from '@/store/useSimulator'
 import { selectQualificationRanking } from '@/store/selectors'
+import { analyzeScenario, SCENARIO_TEAM } from '@/lib/king'
 import type { QualEntry } from '@/lib/standings'
-import { teamFlag, teamAbbr } from '@/lib/teams'
+import { teamFlag, teamAbbr, teamName } from '@/lib/teams'
 import { Button } from '@/components/ui/button'
 import { useT } from '@/i18n/useT'
 import type { DictKey } from '@/i18n/dictionaries'
@@ -12,13 +13,14 @@ import type { DictKey } from '@/i18n/dictionaries'
 const tierKey = (tier: number): DictKey =>
   tier === 1 ? 'pos1' : tier === 2 ? 'pos2' : tier === 5 ? 'pos4' : 'pos3'
 
-function Row({ e }: { e: QualEntry }) {
+function Row({ e, korFocus }: { e: QualEntry; korFocus?: boolean }) {
   const { t, locale } = useT()
   // 진출(1~32)은 동일하게, 미진출(33~48)만 흐림. 컷 라인이 경계를 표시.
   const tone = e.overall <= 32 ? '' : 'opacity-40'
+  const isKor = korFocus && e.teamId === SCENARIO_TEAM
   const gd = e.gd > 0 ? `+${e.gd}` : `${e.gd}`
   return (
-    <div className={`grid grid-cols-[22px_1fr_auto] items-center gap-2 rounded-lg px-2 py-1.5 text-sm ${tone}`}>
+    <div className={`grid grid-cols-[22px_1fr_auto] items-center gap-2 rounded-lg px-2 py-1.5 text-sm ${tone} ${isKor ? 'bg-primary/10 font-bold !opacity-100 ring-1 ring-primary/40' : ''}`}>
       <span className="font-mona text-center text-xs leading-none tabular-nums text-muted-foreground">{e.overall}</span>
       <span className="flex min-w-0 items-center gap-1.5">
         <span>{teamFlag(e.teamId)}</span>
@@ -53,7 +55,46 @@ function Toggle({ open, onClick, more, less, suffix, dir }: {
   )
 }
 
-export function QualPanelBody() {
+// 시나리오 탭: 대한민국 현재 등수·진출여부·유리결과 충족(라이브, 모션).
+function KorHeadline() {
+  const { t, locale } = useT()
+  const scores = useSimulator((s) => s.scores)
+  const a = useMemo(() => analyzeScenario(scores), [scores])
+  if (!a.kor) return null
+  const ok = a.kor.qualified
+  return (
+    <div className="mb-3">
+      <div className="flex items-baseline gap-1.5">
+        <span className="text-base">{teamFlag(SCENARIO_TEAM)}</span>
+        <span className="text-lg font-bold tracking-tight">{teamName(SCENARIO_TEAM, locale)}</span>
+        <motion.span key={a.kor.overall} initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="font-mona text-lg font-extrabold tabular-nums">
+          {t('korRankCurrent', { n: a.kor.overall })}
+        </motion.span>
+      </div>
+      <div className={`mt-0.5 text-sm font-bold ${ok ? 'text-primary' : 'text-red-500'}`}>
+        {ok ? t('korQualified') : t('korEliminated')}
+        {a.pivotal > 0 && (
+          <span className="ml-1.5 font-normal text-muted-foreground">· {t('favorableMet', { met: a.met, total: a.pivotal })}</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// 모바일 접힌 알약용 KOR 등수 라벨.
+function KorPill() {
+  const { t, locale } = useT()
+  const scores = useSimulator((s) => s.scores)
+  const a = useMemo(() => analyzeScenario(scores), [scores])
+  if (!a.kor) return <>{teamFlag(SCENARIO_TEAM)} {teamName(SCENARIO_TEAM, locale)}</>
+  return (
+    <span className={a.kor.qualified ? 'text-primary' : 'text-red-500'}>
+      {teamFlag(SCENARIO_TEAM)} {teamName(SCENARIO_TEAM, locale)} {t('korRankCurrent', { n: a.kor.overall })}
+    </span>
+  )
+}
+
+export function QualPanelBody({ korFocus }: { korFocus?: boolean } = {}) {
   const { t } = useT()
   const scores = useSimulator((s) => s.scores)
   const [expandedTop, setExpandedTop] = useState(false)
@@ -66,18 +107,18 @@ export function QualPanelBody() {
 
   return (
     <div>
-      <h2 className="mb-3 text-lg font-bold tracking-tight">{t('qualStatus')}</h2>
+      {korFocus ? <KorHeadline /> : <h2 className="mb-3 text-lg font-bold tracking-tight">{t('qualStatus')}</h2>}
 
       {/* 위쪽: 1~24위(진출 확정) 더보기 */}
       <Toggle open={expandedTop} onClick={() => setExpandedTop((v) => !v)} more="showRanksMore" less="showRanksLess" suffix="confirmedSuffix" dir="up" />
       {expandedTop && (
         <>
-          {auto.map((e) => <Row key={e.teamId} e={e} />)}
+          {auto.map((e) => <Row key={e.teamId} e={e} korFocus={korFocus} />)}
           <div className="my-2.5 h-px bg-border" />
         </>
       )}
 
-      {bubble.map((e) => <Row key={e.teamId} e={e} />)}
+      {bubble.map((e) => <Row key={e.teamId} e={e} korFocus={korFocus} />)}
 
       <div className="my-3 flex items-center gap-2.5">
         <span className="h-0.5 flex-1 rounded bg-gradient-to-r from-transparent to-primary" />
@@ -90,20 +131,20 @@ export function QualPanelBody() {
         <span className="h-0.5 flex-1 rounded bg-gradient-to-l from-transparent to-primary" />
       </div>
 
-      {elim.map((e) => <Row key={e.teamId} e={e} />)}
+      {elim.map((e) => <Row key={e.teamId} e={e} korFocus={korFocus} />)}
 
       {/* 아래쪽: 37~48위(조 4위, 탈락) 더보기 */}
       <Toggle open={expandedBottom} onClick={() => setExpandedBottom((v) => !v)} more="showFourthMore" less="showFourthLess" suffix="eliminatedSuffix" dir="down" />
-      {expandedBottom && fourths.map((e) => <Row key={e.teamId} e={e} />)}
+      {expandedBottom && fourths.map((e) => <Row key={e.teamId} e={e} korFocus={korFocus} />)}
     </div>
   )
 }
 
 // 데스크탑: 우측 sticky 패널
-export function ThirdPlaceAside() {
+export function ThirdPlaceAside({ korFocus }: { korFocus?: boolean } = {}) {
   return (
     <aside className="sticky top-4 hidden h-fit w-[312px] shrink-0 rounded-2xl border p-4 lg:block">
-      <QualPanelBody />
+      <QualPanelBody korFocus={korFocus} />
     </aside>
   )
 }
@@ -114,11 +155,13 @@ export function QualMorphBar({
   filled,
   total,
   onNext,
+  korFocus,
 }: {
   complete: boolean
   filled: number
   total: number
   onNext: () => void
+  korFocus?: boolean
 }) {
   const { t } = useT()
   const [open, setOpen] = useState(false)
@@ -198,7 +241,7 @@ export function QualMorphBar({
                   <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-6 bg-gradient-to-b from-background to-transparent" />
                 )}
                 <div ref={scrollRef} onScroll={recomputeFade} className="h-full overflow-y-auto px-4">
-                  <QualPanelBody />
+                  <QualPanelBody korFocus={korFocus} />
                 </div>
                 {fade.bottom && (
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-6 bg-gradient-to-t from-background to-transparent" />
@@ -217,7 +260,7 @@ export function QualMorphBar({
                       onNext()
                     }}
                   >
-                    {t('next')} →
+                    {t(korFocus ? 'scenarioToKnockout' : 'next')} →
                   </Button>
                 ) : (
                   <span className="flex-1 text-center text-sm text-muted-foreground">
@@ -234,7 +277,7 @@ export function QualMorphBar({
                 onClick={() => setOpen(true)}
                 className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold"
               >
-                🥉 {t('qualStatusButton')}
+                {korFocus ? <KorPill /> : <>🥉 {t('qualStatusButton')}</>}
               </button>
               {/* 넓은 데스크탑 플로팅 버튼과 동일 스타일(크기만 작게): 미완료=어두운 알약, 완료=녹색 알약 */}
               {complete ? (
@@ -243,7 +286,7 @@ export function QualMorphBar({
                   onClick={() => onNext()}
                   className="whitespace-nowrap rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-transform hover:scale-105"
                 >
-                  {t('next')} →
+                  {t(korFocus ? 'scenarioToKnockout' : 'next')} →
                 </button>
               ) : (
                 <span className="whitespace-nowrap rounded-full bg-foreground/85 px-4 py-2 text-sm font-semibold text-background">

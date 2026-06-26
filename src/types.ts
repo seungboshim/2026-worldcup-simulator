@@ -5,6 +5,7 @@ export interface Team { id: string; name: string; nameEn: string; flagCode: stri
 export interface GroupMatch {
   id: string; groupId: GroupId; homeId: string; awayId: string
   played: boolean; defaultHome: number | null; defaultAway: number | null
+  utcDate?: string
 }
 export interface Score { home: number; away: number }
 export type ScoreMap = Record<string, Score | null>

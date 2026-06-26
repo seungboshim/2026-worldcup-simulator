@@ -1,23 +1,35 @@
 'use client'
 import { useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useSimulator } from '@/store/useSimulator'
 import { GroupStage } from '@/components/group/GroupStage'
+import { ScenarioBoard } from '@/components/scenario/ScenarioBoard'
 import { Bracket } from '@/components/knockout/Bracket'
 import { AwardsVote } from '@/components/AwardsVote'
 import { ThirdPlaceAside, QualMorphBar } from '@/components/ThirdPlacePanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useT } from '@/i18n/useT'
 
+type Tab = 'group' | 'scenario' | 'knockout'
+
 export function Simulator() {
   const { t } = useT()
-  const [tab, setTab] = useState('group')
+  const router = useRouter()
+  const pathname = usePathname()
+  const params = useSearchParams()
   const scores = useSimulator((s) => s.scores)
   const total = Object.keys(scores).length
   const filled = Object.values(scores).filter((v) => v != null).length
   const complete = total > 0 && filled >= total
 
+  const urlTab = params.get('tab')
+  const wanted: Tab = urlTab === 'scenario' || urlTab === 'knockout' || urlTab === 'group' ? urlTab : 'group'
+  const initial: Tab = wanted === 'knockout' && !complete ? 'group' : wanted
+  const [tab, setTab] = useState<Tab>(initial)
+
   const changeTab = (v: string) => {
-    setTab(v)
+    setTab(v as Tab)
+    router.replace(`${pathname}?tab=${v}`, { scroll: false })
     window.scrollTo({ top: 0 })
   }
 
@@ -25,6 +37,7 @@ export function Simulator() {
     <Tabs value={tab} onValueChange={changeTab}>
       <TabsList>
         <TabsTrigger value="group">{t('tabGroup')}</TabsTrigger>
+        <TabsTrigger value="scenario">{t('tabScenario')}</TabsTrigger>
         <TabsTrigger value="knockout" disabled={!complete}>
           {t('tabKnockout')}
         </TabsTrigger>
@@ -43,7 +56,7 @@ export function Simulator() {
           {complete ? (
             <button
               type="button"
-              onClick={() => changeTab('knockout')}
+              onClick={() => changeTab('scenario')}
               className="pointer-events-auto rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 transition-transform hover:scale-105"
             >
               {t('next')} →
@@ -56,7 +69,11 @@ export function Simulator() {
         </div>
 
         {/* 모바일: 진출현황 알약 → 시트로 모프(진행도/다음 CTA 내장) */}
-        <QualMorphBar complete={complete} filled={filled} total={total} onNext={() => changeTab('knockout')} />
+        <QualMorphBar complete={complete} filled={filled} total={total} onNext={() => changeTab('scenario')} />
+      </TabsContent>
+
+      <TabsContent value="scenario" className="min-w-0">
+        <ScenarioBoard complete={complete} filled={filled} total={total} onNext={() => changeTab('knockout')} />
       </TabsContent>
 
       <TabsContent value="knockout" className="min-w-0">
