@@ -1,20 +1,27 @@
 'use client'
+import { motion, AnimatePresence } from 'motion/react'
 import type { GroupMatch, Score } from '@/types'
 import type { MatchAnalysis } from '@/lib/king'
 import { formatFavorable } from '@/lib/king'
 import { teamFlag, teamName } from '@/lib/teams'
 import { useT } from '@/i18n/useT'
 
+const SHADOW_UP = '0 8px 24px rgba(34, 197, 94, 0.45)'
+const SHADOW_DOWN = '0 8px 24px rgba(239, 68, 68, 0.45)'
+const SHADOW_NONE = '0 0 0 0 rgba(0,0,0,0)'
+
 export function ScenarioMatchRow({
   match,
   analysis,
   score,
   onScore,
+  flash,
 }: {
   match: GroupMatch
   analysis: MatchAnalysis
   score: Score | null | undefined
   onScore: (matchId: string, score: Score) => void
+  flash?: 'up' | 'down' | null
 }) {
   const { t, locale } = useT()
   const filled = score != null
@@ -26,12 +33,27 @@ export function ScenarioMatchRow({
   const conditionText = analysis.condition ? formatFavorable(analysis.condition, match.homeId, match.awayId, locale) : null
 
   return (
-    <div
+    <motion.div
       data-unfilled={!filled || undefined}
-      className={`rounded-xl p-3 transition-colors ${
+      animate={{ boxShadow: flash === 'up' ? SHADOW_UP : flash === 'down' ? SHADOW_DOWN : SHADOW_NONE }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className={`relative rounded-xl p-3 transition-colors ${
         pivotal ? 'border-2 border-primary bg-primary/[0.06]' : 'border'
       } ${filled ? '' : 'opacity-70'}`}
     >
+      <AnimatePresence>
+        {flash && (
+          <motion.span
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.25 }}
+            className={`pointer-events-none absolute right-3 top-2 text-xs font-bold ${flash === 'up' ? 'text-primary' : 'text-red-500'}`}
+          >
+            {flash === 'up' ? t('rankUp') : t('rankDown')}
+          </motion.span>
+        )}
+      </AnimatePresence>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
         <button
           type="button"
@@ -82,7 +104,7 @@ export function ScenarioMatchRow({
       ) : (
         <div className="mt-1.5 text-[11px] text-muted-foreground/60">{t('notPivotal')}</div>
       )}
-    </div>
+    </motion.div>
   )
 }
 

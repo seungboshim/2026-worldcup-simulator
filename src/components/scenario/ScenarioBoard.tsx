@@ -1,7 +1,7 @@
 'use client'
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Score, ScoreMap } from '@/types'
-import { matchday3Matches, analyzeScenario } from '@/lib/king'
+import { matchday3Matches, analyzeScenario, projectKorRank } from '@/lib/king'
 import { ScenarioMatchRow } from './ScenarioMatchRow'
 import { ThirdPlaceAside, QualMorphBar } from '@/components/ThirdPlacePanel'
 import { useT } from '@/i18n/useT'
@@ -40,6 +40,24 @@ export function ScenarioBoard({
   const analysis = useMemo(() => analyzeScenario(scores), [scores])
   const listRef = useRef<HTMLDivElement>(null)
 
+  // 점수 변경으로 KOR 순위가 바뀌면 그 경기를 잠깐 강조(상승=초록/하락=빨강).
+  const [flash, setFlash] = useState<{ matchId: string; dir: 'up' | 'down' } | null>(null)
+  const flashTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const handleScore = useCallback(
+    (matchId: string, score: Score) => {
+      const before = projectKorRank(scores)?.overall
+      const after = projectKorRank({ ...scores, [matchId]: score })?.overall
+      onScore(matchId, score)
+      if (before != null && after != null && after !== before) {
+        setFlash({ matchId, dir: after < before ? 'up' : 'down' }) // overall↓ = 순위 상승
+        clearTimeout(flashTimer.current)
+        flashTimer.current = setTimeout(() => setFlash(null), 1000)
+      }
+    },
+    [scores, onScore],
+  )
+  useEffect(() => () => clearTimeout(flashTimer.current), [])
+
   // 진입 시 첫 미예측 경기로 부드럽게 중앙 스크롤.
   useEffect(() => {
     const id = requestAnimationFrame(() => {
@@ -61,7 +79,13 @@ export function ScenarioBoard({
             <div key={m.id}>
               {showHeader && <h3 className="mt-4 mb-1.5 text-sm font-bold text-muted-foreground first:mt-0">{day}</h3>}
               {m.utcDate && <div className="mb-1 font-mona text-[11px] tabular-nums text-muted-foreground">{timeLabel(m.utcDate, locale)}</div>}
-              <ScenarioMatchRow match={m} analysis={analysis.matches[m.id]} score={scores[m.id]} onScore={onScore} />
+              <ScenarioMatchRow
+                match={m}
+                analysis={analysis.matches[m.id]}
+                score={scores[m.id]}
+                onScore={handleScore}
+                flash={flash && flash.matchId === m.id ? flash.dir : null}
+              />
             </div>
           )
         })}
