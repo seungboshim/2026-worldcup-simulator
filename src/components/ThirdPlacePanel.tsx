@@ -14,20 +14,26 @@ import type { DictKey } from '@/i18n/dictionaries'
 const tierKey = (tier: number): DictKey =>
   tier === 1 ? 'pos1' : tier === 2 ? 'pos2' : tier === 5 ? 'pos4' : 'pos3'
 
-// 순위 변동 강조 그림자(경기 행과 동일): 상승=초록 / 하락=빨강 / 평상 = rest.
-const SHADOW_UP = '0 8px 24px rgba(34, 197, 94, 0.45)'
-const SHADOW_DOWN = '0 8px 24px rgba(239, 68, 68, 0.45)'
-const flashShadow = (f: 'up' | 'down' | null | undefined, rest: string) =>
-  f === 'up' ? SHADOW_UP : f === 'down' ? SHADOW_DOWN : rest
+// 기본 섀도우(base)는 항상 유지하고, 그 위에 글로우 한 겹을 알파로 자연스럽게 올렸다 내린다(2중 box-shadow).
+// 노랑=30~32등 경고(펄스 반복), 초록/빨강=순위 변동 flash. flash가 있으면 flash 우선(노랑에 안 가려짐).
+const glow = (rgba: string) => `0 8px 24px ${rgba}`
+const G_OFF = 'rgba(0,0,0,0)'
+const G_YELLOW_LO = 'rgba(250, 204, 21, 0.06)'
+const G_YELLOW_HI = 'rgba(250, 204, 21, 0.5)'
+const G_GREEN = 'rgba(34, 197, 94, 0.5)'
+const G_RED = 'rgba(239, 68, 68, 0.5)'
 
-// 30·31·32등(버블) 경고 = 노랑 깜빡. 초록/빨강 flash와 동일한 글로우 디자인(0 8px 24px, 0.45)으로 펄스.
-// flash(초록/빨강)가 있으면 flash가 우선(노랑에 안 가려짐).
-const SHADOW_YELLOW = '0 8px 24px rgba(250, 204, 21, 0.45)'
-const yellowBlink = (rest: string): string[] => [rest, SHADOW_YELLOW, rest]
-const panelShadow = (flash: 'up' | 'down' | null | undefined, bubble: boolean | undefined, rest: string): string | string[] =>
-  flash ? flashShadow(flash, rest) : bubble ? yellowBlink(rest) : rest
-const panelShadowTrans = (flash: 'up' | 'down' | null | undefined, bubble: boolean | undefined) =>
-  !flash && bubble ? { duration: 1.8, repeat: Infinity, ease: 'easeInOut' as const } : { duration: 0.35 }
+function panelGlow(flash: 'up' | 'down' | null | undefined, bubble: boolean | undefined, base: string) {
+  if (flash) return { boxShadow: `${base}, ${glow(flash === 'up' ? G_GREEN : G_RED)}`, trans: { duration: 0.4 } }
+  if (bubble)
+    return {
+      boxShadow: [`${base}, ${glow(G_YELLOW_LO)}`, `${base}, ${glow(G_YELLOW_HI)}`, `${base}, ${glow(G_YELLOW_LO)}`],
+      trans: { duration: 1.8, repeat: Infinity, ease: 'easeInOut' as const },
+    }
+  return { boxShadow: `${base}, ${glow(G_OFF)}`, trans: { duration: 0.5 } }
+}
+const BASE_ASIDE = '0 1px 3px rgba(0,0,0,0.08)'
+const BASE_MORPH = '0 25px 50px -12px rgba(0,0,0,0.35)'
 
 function Row({ e, korFocus }: { e: QualEntry; korFocus?: boolean }) {
   const { t, locale } = useT()
@@ -164,10 +170,11 @@ export function ThirdPlaceAside({
   flash,
   bubble,
 }: { korFocus?: boolean; scores?: ScoreMap; flash?: 'up' | 'down' | null; bubble?: boolean } = {}) {
+  const g = panelGlow(flash, bubble, BASE_ASIDE)
   return (
     <motion.aside
-      animate={{ boxShadow: panelShadow(flash, bubble, '0 0 0 0 rgba(0,0,0,0)') }}
-      transition={{ boxShadow: panelShadowTrans(flash, bubble) }}
+      animate={{ boxShadow: g.boxShadow }}
+      transition={{ boxShadow: g.trans }}
       className="sticky top-4 hidden h-fit w-[312px] shrink-0 rounded-2xl border p-4 lg:block"
     >
       <QualPanelBody korFocus={korFocus} scores={scores} />
@@ -229,6 +236,7 @@ export function QualMorphBar({
     return () => ro.disconnect()
   }, [open, recomputeFade])
 
+  const g = panelGlow(flash, bubble, BASE_MORPH)
   return (
     <div className="lg:hidden">
       <AnimatePresence>
@@ -249,8 +257,8 @@ export function QualMorphBar({
           layout
           role={open ? 'dialog' : undefined}
           aria-modal={open || undefined}
-          animate={{ boxShadow: panelShadow(flash, bubble, '0 25px 50px -12px rgba(0,0,0,0.35)') }}
-          transition={{ layout: { duration: 0.42, ease: [0.16, 1, 0.3, 1] }, boxShadow: panelShadowTrans(flash, bubble) }}
+          animate={{ boxShadow: g.boxShadow }}
+          transition={{ layout: { duration: 0.42, ease: [0.16, 1, 0.3, 1] }, boxShadow: g.trans }}
           className={`overflow-hidden border ${
             open
               ? 'flex max-h-[80vh] w-full max-w-md flex-col rounded-2xl bg-background'
