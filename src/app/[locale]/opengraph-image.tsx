@@ -27,7 +27,7 @@ export default async function OgImage() {
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} width={980} height={540} style={{ objectFit: 'contain' }} alt={alt} />
+        <img src={src} width={1180} height={620} style={{ objectFit: 'contain' }} alt={alt} />
       </div>
     ),
     { ...size },

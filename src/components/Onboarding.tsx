@@ -232,7 +232,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
       >
         {/* 0: 로고 — 흰 폰트 가독성 위해 뒤에 검은 방사형 그래디언트 */}
         <div className="flex w-full shrink-0 snap-center items-center justify-center p-6">
-          <div className="mx-auto w-full max-w-[520px] px-3 py-10" style={{ background: 'radial-gradient(ellipse 62% 46% at 50% 50%, rgba(0,0,0,0.62), rgba(0,0,0,0) 72%)' }}>
+          <div className="mx-auto w-full max-w-[520px] px-3 py-10" style={{ background: 'radial-gradient(ellipse 64% 48% at 50% 50%, rgba(0,0,0,0.82), rgba(0,0,0,0) 74%)' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/landing-title.png" alt={t('appTitle')} className="mx-auto w-full max-w-[460px]" draggable={false} />
           </div>

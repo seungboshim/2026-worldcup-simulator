@@ -20,16 +20,14 @@ const SHADOW_DOWN = '0 8px 24px rgba(239, 68, 68, 0.45)'
 const flashShadow = (f: 'up' | 'down' | null | undefined, rest: string) =>
   f === 'up' ? SHADOW_UP : f === 'down' ? SHADOW_DOWN : rest
 
-// 30·31·32등(버블) 경고 = 노랑 테두리 깜빡. flash(초록/빨강)가 있으면 flash가 우선(노랑에 안 가려짐).
-const yellowBlink = (rest: string): string[] => [
-  `0 0 0 1px rgba(250,204,21,0.12), ${rest}`,
-  `0 0 0 3px rgba(250,204,21,0.95), ${rest}`,
-  `0 0 0 1px rgba(250,204,21,0.12), ${rest}`,
-]
+// 30·31·32등(버블) 경고 = 노랑 깜빡. 초록/빨강 flash와 동일한 글로우 디자인(0 8px 24px, 0.45)으로 펄스.
+// flash(초록/빨강)가 있으면 flash가 우선(노랑에 안 가려짐).
+const SHADOW_YELLOW = '0 8px 24px rgba(250, 204, 21, 0.45)'
+const yellowBlink = (rest: string): string[] => [rest, SHADOW_YELLOW, rest]
 const panelShadow = (flash: 'up' | 'down' | null | undefined, bubble: boolean | undefined, rest: string): string | string[] =>
   flash ? flashShadow(flash, rest) : bubble ? yellowBlink(rest) : rest
 const panelShadowTrans = (flash: 'up' | 'down' | null | undefined, bubble: boolean | undefined) =>
-  !flash && bubble ? { duration: 1.1, repeat: Infinity, ease: 'easeInOut' as const } : { duration: 0.35 }
+  !flash && bubble ? { duration: 1.8, repeat: Infinity, ease: 'easeInOut' as const } : { duration: 0.35 }
 
 function Row({ e, korFocus }: { e: QualEntry; korFocus?: boolean }) {
   const { t, locale } = useT()
