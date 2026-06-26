@@ -30,6 +30,8 @@
   "ob2Body": "Tap a country or the scoreboard to change scores — the matches that decide Korea's fate glow green.",
   "ob3Title": "Group & knockout sims too",
   "ob3Body": "If you like, fill in the whole group stage and the bracket yourself.",
+  "demoTapHint": "Tap a country or the score 👆",
+  "demoGood": "Good for Korea!",
   "scenarioToKnockout": "To bracket",
   "tabKnockout": "Knockout",
   "predictedMatches": "Matches filled",

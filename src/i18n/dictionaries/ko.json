@@ -30,6 +30,8 @@
   "ob2Body": "국가나 전광판을 누르면 점수가 바뀌고, 당락을 가르는 경기는 초록으로 강조돼요.",
   "ob3Title": "조별리그·토너먼트 시뮬도",
   "ob3Body": "원하면 전체 조별 점수와 토너먼트 대진까지 직접 그려볼 수 있어요.",
+  "demoTapHint": "국가·전광판을 눌러보세요 👆",
+  "demoGood": "한국에 유리!",
   "scenarioToKnockout": "토너먼트로",
   "tabKnockout": "토너먼트",
   "predictedMatches": "예측한 경기",
