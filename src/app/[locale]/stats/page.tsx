@@ -6,6 +6,7 @@ import { getDictionary } from '@/i18n/dictionaries'
 import { isLocale, type Locale } from '@/i18n/config'
 import { TierTable } from '@/components/stats/TierTable'
 import { AwardTable } from '@/components/stats/AwardTable'
+import { MyPicksSummary } from '@/components/stats/MyPicksSummary'
 
 export const dynamic = 'force-dynamic' // 항상 최신 집계
 
@@ -34,6 +35,8 @@ export default async function StatsPage({ params }: { params: Promise<{ locale: 
 
   return (
     <div className="space-y-4">
+      <MyPicksSummary />
+
       <div>
         <h2 className="text-2xl font-extrabold tracking-tight">{t.statsTitle}</h2>
         <p className="mt-1 text-sm text-muted-foreground">

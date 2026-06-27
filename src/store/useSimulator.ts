@@ -19,8 +19,11 @@ export function defaultScores(): ScoreMap {
 interface SimulatorState {
   scores: ScoreMap
   winners: Record<string, string | null>
+  goldenBall: string
+  goldenBoot: string
   setScore: (matchId: string, score: Score) => void
   setWinner: (matchId: string, teamId: string) => void
+  setAward: (kind: 'ball' | 'boot', playerId: string) => void
   resetToDefault: () => void
   clearAll: () => void
 }
@@ -30,15 +33,18 @@ export const useSimulator = create<SimulatorState>()(
     (set) => ({
       scores: defaultScores(),
       winners: {},
+      goldenBall: '',
+      goldenBoot: '',
       setScore: (matchId, score) =>
         set((st) => ({ scores: { ...st.scores, [matchId]: score } })),
       setWinner: (matchId, teamId) =>
         set((st) => ({ winners: { ...st.winners, [matchId]: teamId } })),
-      resetToDefault: () => set({ scores: defaultScores(), winners: {} }),
+      setAward: (kind, playerId) => set(kind === 'ball' ? { goldenBall: playerId } : { goldenBoot: playerId }),
+      resetToDefault: () => set({ scores: defaultScores(), winners: {}, goldenBall: '', goldenBoot: '' }),
       clearAll: () => {
         const cleared: ScoreMap = {}
         for (const k of Object.keys(defaultScores())) cleared[k] = null
-        set({ scores: cleared, winners: {} })
+        set({ scores: cleared, winners: {}, goldenBall: '', goldenBoot: '' })
       },
     }),
     { name: 'worldcup-sim-2026' },

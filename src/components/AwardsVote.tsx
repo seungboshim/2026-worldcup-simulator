@@ -51,9 +51,12 @@ export function AwardsVote() {
   const router = useRouter()
   const scores = useSimulator((s) => s.scores)
   const winners = useSimulator((s) => s.winners)
+  const ball = useSimulator((s) => s.goldenBall)
+  const boot = useSimulator((s) => s.goldenBoot)
+  const setAward = useSimulator((s) => s.setAward)
+  const setBall = (id: string) => setAward('ball', id)
+  const setBoot = (id: string) => setAward('boot', id)
   const picks = extractPrediction(selectResolvedBracket(scores, winners), winners)
-  const [ball, setBall] = useState('')
-  const [boot, setBoot] = useState('')
   const [busy, setBusy] = useState(false)
 
   if (!picks) {

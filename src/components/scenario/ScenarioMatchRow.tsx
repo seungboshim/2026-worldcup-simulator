@@ -1,9 +1,10 @@
 'use client'
 import { motion, AnimatePresence } from 'motion/react'
 import type { GroupMatch, Score } from '@/types'
-import type { MatchColor } from '@/lib/king'
+import { formatCondition, type MatchInfo } from '@/lib/king'
 import { teamFlag, teamName } from '@/lib/teams'
 import { useT } from '@/i18n/useT'
+import type { Locale } from '@/i18n/config'
 
 const SHADOW_UP = '0 8px 24px rgba(34, 197, 94, 0.45)'
 const SHADOW_DOWN = '0 8px 24px rgba(239, 68, 68, 0.45)'
@@ -11,13 +12,13 @@ const SHADOW_NONE = '0 0 0 0 rgba(0,0,0,0)'
 
 export function ScenarioMatchRow({
   match,
-  color,
+  info,
   score,
   onScore,
   flash,
 }: {
   match: GroupMatch
-  color: MatchColor
+  info: MatchInfo
   score: Score | null | undefined
   onScore: (matchId: string, score: Score) => void
   flash?: 'up' | 'down' | null
@@ -29,19 +30,17 @@ export function ScenarioMatchRow({
   const update = (home: number, away: number) => onScore(match.id, { home: Math.max(0, home), away: Math.max(0, away) })
 
   const locked = match.played // 이미 진행된 경기 → 조작불가 + dim
-  // fav/unfav/pending = 9개 빙고조의 3위 결정전만. live = 예측이 가르는 변수(pending & 미진행).
-  const live = color === 'pending' && !locked
-  const plain = filled ? 'border border-foreground/30' : 'border'
-  const border =
-    color === 'fav'
+  const decider = info.kind === 'decider'
+  // 빙고 칩(결정전 9경기)만 색 테두리. 나머지는 플레인(순위변동 glow만).
+  const border = decider
+    ? info.color === 'fav'
       ? 'border-2 border-primary bg-primary/[0.06]'
-      : color === 'unfav'
+      : info.color === 'unfav'
         ? 'border-2 border-red-500/60 bg-red-500/[0.05]'
-        : color === 'pending'
-          ? live
-            ? 'border-2 border-amber-400/70 bg-amber-400/[0.06]'
-            : 'border-2 border-amber-400/40'
-          : plain // 'none' · 'kor' → 빙고 무관, 플레인(순위변동 glow만)
+        : 'border-2 border-amber-400/60 bg-amber-400/[0.05]'
+    : filled
+      ? 'border border-foreground/30'
+      : 'border'
 
   return (
     <motion.div
@@ -98,25 +97,49 @@ export function ScenarioMatchRow({
         </button>
       </div>
 
-      <ColorTag color={color} live={live} />
+      <MatchTag info={info} match={match} filled={filled} locale={locale} />
     </motion.div>
   )
 }
 
-function ColorTag({ color, live }: { color: MatchColor; live: boolean }) {
+function MatchTag({ info, match, filled, locale }: { info: MatchInfo; match: GroupMatch; filled: boolean; locale: Locale }) {
   const { t } = useT()
-  if (color === 'none') return null // 빙고 무관 경기 → 라벨 없음(순위변동 glow만)
-  if (color === 'kor') return <div className="mt-1.5 text-xs text-muted-foreground/70">🇰🇷 {t('bingoKorMatch')}</div>
-  // 칩은 항상 "32강 빙고", 색만 상태에 따라 바뀜(유리=초록/불리=빨강/미정=노랑). 옆에 설명.
-  const cls =
-    color === 'fav' ? 'bg-primary text-primary-foreground' : color === 'unfav' ? 'bg-red-500 text-white' : 'bg-amber-400 text-amber-950'
-  const desc = color === 'fav' ? t('bingoFav') : color === 'unfav' ? t('bingoUnfav') : live ? t('bingoLive') : t('bingoPending')
-  return (
-    <div className="mt-2 flex items-center gap-2 text-sm">
-      <span className={`shrink-0 rounded px-1.5 py-0.5 font-bold ${cls}`}>{t('bingoChip')}</span>
-      <span className="min-w-0 truncate text-muted-foreground">{desc}</span>
-    </div>
-  )
+  const cond = (c: NonNullable<MatchInfo['favorable']>) => formatCondition(c, match.homeId, match.awayId, locale)
+
+  if (info.kind === 'kor') return <div className="mt-1.5 text-xs text-muted-foreground/70">🇰🇷 {t('bingoKorMatch')}</div>
+
+  if (info.kind === 'decider') {
+    const chipCls =
+      info.color === 'fav' ? 'bg-primary text-primary-foreground' : info.color === 'unfav' ? 'bg-red-500 text-white' : 'bg-amber-400 text-amber-950'
+    // 칩 옆 설명: 결정나면 유리/불리, 미정이면 "○○ 승리 시 한국 유리" 디테일 조건.
+    const desc =
+      info.color === 'fav'
+        ? t('bingoFav')
+        : info.color === 'unfav'
+          ? t('bingoUnfav')
+          : info.favorable
+            ? t('bingoFavIf', { cond: cond(info.favorable) })
+            : t('bingoPending')
+    return (
+      <div className="mt-2 flex items-center gap-2 text-sm">
+        <span className={`shrink-0 rounded px-1.5 py-0.5 font-bold ${chipCls}`}>{t('bingoChip')}</span>
+        <span className="min-w-0 truncate text-muted-foreground">{desc}</span>
+      </div>
+    )
+  }
+
+  if (info.kind === 'hint') {
+    // 칩 없이 텍스트 힌트만. 순위 하락(위험)을 우선, 없으면 상승.
+    const text = info.unfavorable
+      ? t('hintRankDown', { cond: cond(info.unfavorable) })
+      : info.favorable
+        ? t('hintRankUp', { cond: cond(info.favorable) })
+        : null
+    if (!text) return null
+    return <div className="mt-1.5 text-xs text-muted-foreground">💡 {text}</div>
+  }
+
+  return null
 }
 
 function Step({ onUp, onDown, up, down }: { onUp: () => void; onDown: () => void; up: string; down: string }) {

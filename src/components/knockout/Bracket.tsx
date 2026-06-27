@@ -1,4 +1,6 @@
 'use client'
+import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import data from '../../../data/worldcup-2026.json'
 import type { KnockoutRound, WorldCupData } from '@/types'
 import { useSimulator } from '@/store/useSimulator'
@@ -6,6 +8,7 @@ import { selectResolvedBracket } from '@/store/selectors'
 import { bracketLayoutRank } from '@/lib/bracket-layout'
 import { teamFlag, teamName } from '@/lib/teams'
 import { BracketMatch } from './BracketMatch'
+import { ChampionCelebration } from './ChampionCelebration'
 import { SubmitPrediction } from '@/components/SubmitPrediction'
 import { useT } from '@/i18n/useT'
 import type { DictKey } from '@/i18n/dictionaries'
@@ -27,8 +30,22 @@ export function Bracket() {
   const finalMatch = wc.knockoutMatches.find((m) => m.round === 'F')
   const championId = finalMatch ? winners[finalMatch.id] ?? null : null
 
+  // 우승팀이 새로 정해지면 잠깐 축하(컨페티+글로우). 같은 팀 재선택/되돌림엔 다시 안 터지게 ref로 추적.
+  const [celebrate, setCelebrate] = useState(false)
+  const prevChamp = useRef<string | null>(championId)
+  useEffect(() => {
+    if (championId && championId !== prevChamp.current) {
+      setCelebrate(true)
+      const id = setTimeout(() => setCelebrate(false), 2400)
+      prevChamp.current = championId
+      return () => clearTimeout(id)
+    }
+    prevChamp.current = championId
+  }, [championId])
+
   return (
     <div className="flex gap-6 overflow-x-auto pb-4">
+      <AnimatePresence>{celebrate && championId && <ChampionCelebration championId={championId} locale={locale} />}</AnimatePresence>
       {ROUNDS.map(({ round, labelKey }) => {
         const matches = wc.knockoutMatches
           .filter((m) => m.round === round)
@@ -46,10 +63,20 @@ export function Bracket() {
         )
       })}
       <div className="flex min-w-[204px] flex-col justify-center gap-3.5">
-        <div className="rounded-2xl border border-primary bg-accent p-4 text-center">
-          <div className="text-sm font-bold text-primary">🏆 {t('champion')}</div>
+        <motion.div
+          key={championId ?? 'none'}
+          initial={championId ? { scale: 0.9 } : false}
+          animate={
+            championId
+              ? { scale: 1, boxShadow: ['0 0 0 rgba(251,191,36,0)', '0 0 44px rgba(251,191,36,0.75)', '0 0 18px rgba(251,191,36,0.4)'] }
+              : { boxShadow: '0 0 0 rgba(251,191,36,0)' }
+          }
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+          className={`rounded-2xl border p-4 text-center ${championId ? 'border-amber-300 bg-amber-400/10' : 'border-primary bg-accent'}`}
+        >
+          <div className={`text-sm font-bold ${championId ? 'text-amber-500' : 'text-primary'}`}>🏆 {t('champion')}</div>
           <div className="mt-1.5 font-mona text-xl font-extrabold tracking-tight">{championId ? `${teamFlag(championId)} ${teamName(championId, locale)}` : t('undecided')}</div>
-        </div>
+        </motion.div>
         <SubmitPrediction />
       </div>
     </div>
