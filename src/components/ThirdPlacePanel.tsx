@@ -287,22 +287,15 @@ export function QualMorphBar({
         )}
       </AnimatePresence>
 
-      <div className="fixed inset-x-0 bottom-4 z-50 flex flex-col items-center gap-2 px-3">
-        {korFocus && !open && (
-          <div className="rounded-2xl border bg-background/95 px-4 py-2 shadow-lg backdrop-blur">
-            <BingoBadges scores={scores} />
-          </div>
-        )}
+      <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-3">
         <motion.div
           layout
           role={open ? 'dialog' : undefined}
           aria-modal={open || undefined}
           animate={{ boxShadow: g.boxShadow }}
           transition={{ layout: { duration: 0.42, ease: [0.16, 1, 0.3, 1] }, boxShadow: g.trans }}
-          className={`overflow-hidden border ${
-            open
-              ? 'flex max-h-[80vh] w-full max-w-md flex-col rounded-2xl bg-background'
-              : 'rounded-full bg-background/95 backdrop-blur'
+          className={`overflow-hidden border bg-background/95 backdrop-blur ${
+            open ? 'flex max-h-[80vh] w-full max-w-md flex-col rounded-2xl bg-background' : korFocus ? 'rounded-2xl' : 'rounded-full'
           }`}
         >
           {open ? (
@@ -351,8 +344,10 @@ export function QualMorphBar({
               </div>
             </motion.div>
           ) : (
-            // 겉: 진출 현황(→시트) 알약, 그 안에 다음으로(→다음) 버튼을 감싼 모양. 클릭영역은 단순 병렬.
-            <div className="flex items-center gap-5 py-1.5 pr-1.5 pl-5">
+            // 겉: 접힌 네비바. 킹우의수면 위에 빙고 영역, 아래 알약 행을 한 컨테이너에.
+            <div className={korFocus ? 'flex flex-col items-center gap-2.5 px-4 pt-3 pb-2' : 'contents'}>
+              {korFocus && <BingoBadges scores={scores} />}
+              <div className="flex items-center gap-5 py-1.5 pr-1.5 pl-5">
               <button
                 type="button"
                 onClick={() => setOpen(true)}
@@ -374,6 +369,7 @@ export function QualMorphBar({
                   {t('predictedMatches')} <span className="font-mona tabular-nums">{filled}/{total}</span>
                 </span>
               )}
+              </div>
             </div>
           )}
         </motion.div>
