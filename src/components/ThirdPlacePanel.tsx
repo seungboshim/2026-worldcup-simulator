@@ -120,23 +120,20 @@ function KorPill({ scores: scoresProp }: { scores?: ScoreMap }) {
 function BingoBadges({ scores }: { scores?: ScoreMap }) {
   const { t } = useT()
   const store = useSimulator((s) => s.scores)
-  const a = useMemo(() => analyzeScenario(scores ?? store), [scores, store])
+  const sc = scores ?? store
+  const a = useMemo(() => analyzeScenario(sc), [sc])
   const cells = useMemo(() => matchday3Matches().filter((m) => a.matches[m.id]?.related), [a])
   if (!cells.length) return null
   return (
     <div className="flex flex-col items-center gap-1.5">
       <span className="text-xs font-bold">🇰🇷 {t('bingoCaption')}</span>
-      <div className="flex gap-1">
-        {cells.map((m) => (
-          <span
-            key={m.id}
-            className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
-              a.matches[m.id].favorableNow ? 'bg-primary text-primary-foreground' : 'border border-border text-transparent'
-            }`}
-          >
-            ✓
-          </span>
-        ))}
+      <div className="flex gap-1.5">
+        {cells.map((m) => {
+          // 충족=초록 / 결정됐는데 실패=빨강 / 미정=회색 램프
+          const met = a.matches[m.id].favorableNow
+          const decided = sc[m.id] != null
+          return <span key={m.id} className={`h-3 w-3 rounded-full ${met ? 'bg-primary' : decided ? 'bg-red-500' : 'bg-muted'}`} />
+        })}
       </div>
     </div>
   )
