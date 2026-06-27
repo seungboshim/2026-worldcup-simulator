@@ -107,19 +107,14 @@ function ColorTag({ color, live }: { color: MatchColor; live: boolean }) {
   const { t } = useT()
   if (color === 'none') return null // 빙고 무관 경기 → 라벨 없음(순위변동 glow만)
   if (color === 'kor') return <div className="mt-1.5 text-xs text-muted-foreground/70">🇰🇷 {t('bingoKorMatch')}</div>
+  // 칩은 항상 "32강 빙고", 색만 상태에 따라 바뀜(유리=초록/불리=빨강/미정=노랑). 옆에 설명.
   const cls =
-    color === 'fav'
-      ? 'bg-primary text-primary-foreground'
-      : color === 'unfav'
-        ? 'bg-red-500 text-white'
-        : 'bg-amber-400/20 text-amber-600 dark:text-amber-400'
-  const label = color === 'fav' ? t('bingoFav') : color === 'unfav' ? t('bingoUnfav') : live ? t('bingoLive') : t('bingoPending')
+    color === 'fav' ? 'bg-primary text-primary-foreground' : color === 'unfav' ? 'bg-red-500 text-white' : 'bg-amber-400 text-amber-950'
+  const desc = color === 'fav' ? t('bingoFav') : color === 'unfav' ? t('bingoUnfav') : live ? t('bingoLive') : t('bingoPending')
   return (
     <div className="mt-2 flex items-center gap-2 text-sm">
-      <span className={`shrink-0 rounded px-1.5 py-0.5 font-bold ${cls}`}>
-        {color === 'fav' ? '🇰🇷 ' : ''}
-        {label}
-      </span>
+      <span className={`shrink-0 rounded px-1.5 py-0.5 font-bold ${cls}`}>{t('bingoChip')}</span>
+      <span className="min-w-0 truncate text-muted-foreground">{desc}</span>
     </div>
   )
 }

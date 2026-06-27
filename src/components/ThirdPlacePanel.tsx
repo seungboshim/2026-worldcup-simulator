@@ -116,7 +116,7 @@ function KorPill({ scores: scoresProp }: { scores?: ScoreMap }) {
   )
 }
 
-// 11개조 3위 경합 = 빙고. 유리=초록 / 불리=빨강 / 미정(페어플레이·예측 변수)=회색 램프. 캡션 "대한민국 32강 빙고".
+// 9개조 3위 경합 = 빙고. 유리=초록 / 불리=빨강 / 미정(미선택)=점선 테두리 빈 원. 캡션 "대한민국 32강 빙고".
 function BingoBadges({ scores }: { scores?: ScoreMap }) {
   const { t } = useT()
   const store = useSimulator((s) => s.scores)
@@ -131,7 +131,9 @@ function BingoBadges({ scores }: { scores?: ScoreMap }) {
         {cells.map((c) => (
           <span
             key={c.groupId}
-            className={`h-3 w-3 rounded-full ${c.color === 'fav' ? 'bg-primary' : c.color === 'unfav' ? 'bg-red-500' : 'bg-muted'}`}
+            className={`h-3 w-3 rounded-full ${
+              c.color === 'fav' ? 'bg-primary' : c.color === 'unfav' ? 'bg-red-500' : 'border-2 border-dashed border-muted-foreground/50'
+            }`}
           />
         ))}
       </div>
