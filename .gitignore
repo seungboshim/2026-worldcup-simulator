@@ -43,3 +43,6 @@ next-env.d.ts
 # tooling session artifacts
 .playwright-mcp/
 .env*.local
+
+.playwright-mcp/
+scenario.png
