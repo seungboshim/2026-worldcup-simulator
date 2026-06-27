@@ -1,8 +1,7 @@
 'use client'
 import { motion, AnimatePresence } from 'motion/react'
 import type { GroupMatch, Score } from '@/types'
-import type { MatchAnalysis } from '@/lib/king'
-import { formatFavorable } from '@/lib/king'
+import type { MatchColor } from '@/lib/king'
 import { teamFlag, teamName } from '@/lib/teams'
 import { useT } from '@/i18n/useT'
 
@@ -12,13 +11,13 @@ const SHADOW_NONE = '0 0 0 0 rgba(0,0,0,0)'
 
 export function ScenarioMatchRow({
   match,
-  analysis,
+  color,
   score,
   onScore,
   flash,
 }: {
   match: GroupMatch
-  analysis: MatchAnalysis
+  color: MatchColor
   score: Score | null | undefined
   onScore: (matchId: string, score: Score) => void
   flash?: 'up' | 'down' | null
@@ -29,18 +28,26 @@ export function ScenarioMatchRow({
   const a = score?.away ?? 0
   const update = (home: number, away: number) => onScore(match.id, { home: Math.max(0, home), away: Math.max(0, away) })
 
-  const pivotal = analysis.condition != null
   const locked = match.played // 이미 진행된 경기 → 조작불가 + dim
-  const conditionText = analysis.condition ? formatFavorable(analysis.condition, match.homeId, match.awayId, locale) : null
+  // 우리 조(kor) 경기 외에는 모두 32강 빙고에 관여(조 3위 경합). pending = 예측이 가르는 변수.
+  const live = color === 'pending' && !locked // 예측에 따라 KOR 순위가 갈리는 라이브 변수
+  const border =
+    color === 'fav'
+      ? 'border-2 border-primary bg-primary/[0.06]'
+      : color === 'unfav'
+        ? 'border-2 border-red-500/60 bg-red-500/[0.05]'
+        : live
+          ? 'border-2 border-amber-400/70 bg-amber-400/[0.06]'
+          : filled
+            ? 'border border-foreground/30'
+            : 'border'
 
   return (
     <motion.div
       data-unfilled={!filled || undefined}
       animate={{ boxShadow: flash === 'up' ? SHADOW_UP : flash === 'down' ? SHADOW_DOWN : SHADOW_NONE }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className={`relative rounded-xl p-3 transition-colors ${
-        pivotal ? 'border-2 border-primary bg-primary/[0.06]' : filled ? 'border border-foreground/30' : 'border'
-      } ${locked ? 'opacity-60' : ''}`}
+      className={`relative rounded-xl p-3 transition-colors ${border} ${locked ? 'opacity-60' : ''}`}
     >
       <AnimatePresence>
         {flash && (
@@ -90,22 +97,28 @@ export function ScenarioMatchRow({
         </button>
       </div>
 
-      {pivotal ? (
-        <div className="mt-2 flex items-center gap-2 text-sm">
-          <span
-            className={`shrink-0 rounded px-1.5 py-0.5 font-bold ${
-              analysis.favorableNow ? 'bg-primary text-primary-foreground' : 'bg-primary/15 text-primary'
-            }`}
-          >
-            {analysis.favorableNow ? '✓ ' : '🇰🇷 '}
-            {t('decisiveTag')}
-          </span>
-          <span className="min-w-0 truncate text-muted-foreground">{conditionText}</span>
-        </div>
-      ) : (
-        <div className="mt-1.5 text-xs text-muted-foreground/60">{t('notPivotal')}</div>
-      )}
+      <ColorTag color={color} live={live} />
     </motion.div>
+  )
+}
+
+function ColorTag({ color, live }: { color: MatchColor; live: boolean }) {
+  const { t } = useT()
+  if (color === 'kor') return <div className="mt-1.5 text-xs text-muted-foreground/70">🇰🇷 {t('bingoKorMatch')}</div>
+  const cls =
+    color === 'fav'
+      ? 'bg-primary text-primary-foreground'
+      : color === 'unfav'
+        ? 'bg-red-500 text-white'
+        : 'bg-amber-400/20 text-amber-600 dark:text-amber-400'
+  const label = color === 'fav' ? t('bingoFav') : color === 'unfav' ? t('bingoUnfav') : live ? t('bingoLive') : t('bingoPending')
+  return (
+    <div className="mt-2 flex items-center gap-2 text-sm">
+      <span className={`shrink-0 rounded px-1.5 py-0.5 font-bold ${cls}`}>
+        {color === 'fav' ? '🇰🇷 ' : ''}
+        {label}
+      </span>
+    </div>
   )
 }
 

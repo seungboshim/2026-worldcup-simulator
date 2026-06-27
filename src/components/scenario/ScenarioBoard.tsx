@@ -86,7 +86,7 @@ export function ScenarioBoard({
                 {m.utcDate && <div className="mb-1 font-mona text-xs tabular-nums text-muted-foreground">{timeLabel(m.utcDate, locale)}</div>}
                 <ScenarioMatchRow
                   match={m}
-                  analysis={analysis.matches[m.id]}
+                  color={analysis.matchColor[m.id] ?? 'pending'}
                   score={scores[m.id]}
                   onScore={handleScore}
                   flash={flash && flash.matchId === m.id ? flash.dir : null}

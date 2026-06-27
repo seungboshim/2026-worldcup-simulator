@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useSimulator } from '@/store/useSimulator'
 import { selectQualificationRanking } from '@/store/selectors'
-import { analyzeScenario, matchday3Matches, SCENARIO_TEAM } from '@/lib/king'
+import { analyzeScenario, SCENARIO_TEAM } from '@/lib/king'
 import type { QualEntry } from '@/lib/standings'
 import type { ScoreMap } from '@/types'
 import { teamFlag, teamAbbr, teamName } from '@/lib/teams'
@@ -94,9 +94,9 @@ function KorHeadline({ scores }: { scores: ScoreMap }) {
       </div>
       <div className={`mt-0.5 text-sm font-bold ${ok ? 'text-primary' : 'text-red-500'}`}>
         {ok ? t('korQualified') : t('korEliminated')}
-        {a.pivotal > 0 && (
-          <span className="ml-1.5 font-normal text-muted-foreground">· {t('favorableMet', { met: a.met, total: a.pivotal })}</span>
-        )}
+        <span className="ml-1.5 font-normal text-muted-foreground">
+          · {t('bingoFavCount', { n: a.bingo.fav })} · {t('bingoUnfavCount', { n: a.bingo.unfav })}
+        </span>
       </div>
     </div>
   )
@@ -116,24 +116,24 @@ function KorPill({ scores: scoresProp }: { scores?: ScoreMap }) {
   )
 }
 
-// 9개 관여 경기(=빙고)의 충족/미충족을 동그란 뱃지로. 캡션 "대한민국 32강 빙고".
+// 11개조 3위 경합 = 빙고. 유리=초록 / 불리=빨강 / 미정(페어플레이·예측 변수)=회색 램프. 캡션 "대한민국 32강 빙고".
 function BingoBadges({ scores }: { scores?: ScoreMap }) {
   const { t } = useT()
   const store = useSimulator((s) => s.scores)
   const sc = scores ?? store
   const a = useMemo(() => analyzeScenario(sc), [sc])
-  const cells = useMemo(() => matchday3Matches().filter((m) => a.matches[m.id]?.related), [a])
+  const cells = a.bingo.cells
   if (!cells.length) return null
   return (
     <div className="flex flex-col items-center gap-1.5">
       <span className="text-xs font-bold">🇰🇷 {t('bingoCaption')}</span>
       <div className="flex gap-1.5">
-        {cells.map((m) => {
-          // 충족=초록 / 결정됐는데 실패=빨강 / 미정=회색 램프
-          const met = a.matches[m.id].favorableNow
-          const decided = sc[m.id] != null
-          return <span key={m.id} className={`h-3 w-3 rounded-full ${met ? 'bg-primary' : decided ? 'bg-red-500' : 'bg-muted'}`} />
-        })}
+        {cells.map((c) => (
+          <span
+            key={c.groupId}
+            className={`h-3 w-3 rounded-full ${c.color === 'fav' ? 'bg-primary' : c.color === 'unfav' ? 'bg-red-500' : 'bg-muted'}`}
+          />
+        ))}
       </div>
     </div>
   )

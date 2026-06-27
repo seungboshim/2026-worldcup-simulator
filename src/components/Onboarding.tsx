@@ -67,7 +67,7 @@ function DemoMatch() {
       </div>
       <div className="mt-2 text-center text-sm font-bold">
         {korWin ? (
-          <span className="text-primary">🇰🇷 {t('decisiveTag')} · {t('demoGood')}</span>
+          <span className="text-primary">🇰🇷 {t('demoGood')}</span>
         ) : (
           <span className="text-muted-foreground">{t('demoTapHint')}</span>
         )}
