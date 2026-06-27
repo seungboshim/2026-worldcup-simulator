@@ -1,6 +1,7 @@
 'use client'
 import { motion, AnimatePresence } from 'motion/react'
 import type { GroupMatch, Score } from '@/types'
+import type { MatchColor } from '@/lib/king'
 import { teamFlag, teamName } from '@/lib/teams'
 import { useT } from '@/i18n/useT'
 
@@ -10,11 +11,13 @@ const SHADOW_NONE = '0 0 0 0 rgba(0,0,0,0)'
 
 export function ScenarioMatchRow({
   match,
+  color,
   score,
   onScore,
   flash,
 }: {
   match: GroupMatch
+  color: MatchColor
   score: Score | null | undefined
   onScore: (matchId: string, score: Score) => void
   flash?: 'up' | 'down' | null
@@ -26,8 +29,19 @@ export function ScenarioMatchRow({
   const update = (home: number, away: number) => onScore(match.id, { home: Math.max(0, home), away: Math.max(0, away) })
 
   const locked = match.played // 이미 진행된 경기 → 조작불가 + dim
-  // 카드는 플레인(라벨·강조 테두리 없음). 빙고는 패널/네비바 램프로, 순위 변동만 카드에 glow로 표시.
-  const border = filled ? 'border border-foreground/30' : 'border'
+  // fav/unfav/pending = 9개 빙고조의 3위 결정전만. live = 예측이 가르는 변수(pending & 미진행).
+  const live = color === 'pending' && !locked
+  const plain = filled ? 'border border-foreground/30' : 'border'
+  const border =
+    color === 'fav'
+      ? 'border-2 border-primary bg-primary/[0.06]'
+      : color === 'unfav'
+        ? 'border-2 border-red-500/60 bg-red-500/[0.05]'
+        : color === 'pending'
+          ? live
+            ? 'border-2 border-amber-400/70 bg-amber-400/[0.06]'
+            : 'border-2 border-amber-400/40'
+          : plain // 'none' · 'kor' → 빙고 무관, 플레인(순위변동 glow만)
 
   return (
     <motion.div
@@ -83,7 +97,30 @@ export function ScenarioMatchRow({
           <span className="truncate">{teamName(match.awayId, locale)}</span>
         </button>
       </div>
+
+      <ColorTag color={color} live={live} />
     </motion.div>
+  )
+}
+
+function ColorTag({ color, live }: { color: MatchColor; live: boolean }) {
+  const { t } = useT()
+  if (color === 'none') return null // 빙고 무관 경기 → 라벨 없음(순위변동 glow만)
+  if (color === 'kor') return <div className="mt-1.5 text-xs text-muted-foreground/70">🇰🇷 {t('bingoKorMatch')}</div>
+  const cls =
+    color === 'fav'
+      ? 'bg-primary text-primary-foreground'
+      : color === 'unfav'
+        ? 'bg-red-500 text-white'
+        : 'bg-amber-400/20 text-amber-600 dark:text-amber-400'
+  const label = color === 'fav' ? t('bingoFav') : color === 'unfav' ? t('bingoUnfav') : live ? t('bingoLive') : t('bingoPending')
+  return (
+    <div className="mt-2 flex items-center gap-2 text-sm">
+      <span className={`shrink-0 rounded px-1.5 py-0.5 font-bold ${cls}`}>
+        {color === 'fav' ? '🇰🇷 ' : ''}
+        {label}
+      </span>
+    </div>
   )
 }
 

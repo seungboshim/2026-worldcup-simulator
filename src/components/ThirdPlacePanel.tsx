@@ -94,6 +94,9 @@ function KorHeadline({ scores }: { scores: ScoreMap }) {
       </div>
       <div className={`mt-0.5 text-sm font-bold ${ok ? 'text-primary' : 'text-red-500'}`}>
         {ok ? t('korQualified') : t('korEliminated')}
+        <span className="ml-1.5 font-normal text-muted-foreground">
+          · {t('bingoFavCount', { n: a.bingo.fav })} · {t('bingoUnfavCount', { n: a.bingo.unfav })}
+        </span>
       </div>
     </div>
   )

@@ -100,9 +100,29 @@ const groupMd3Kickoff = (g: GroupId) => md3OfGroup(g)[0]?.utcDate ?? ''
 const KOR_MD3_KICKOFF = groupMd3Kickoff(KOR_GROUP)
 const BINGO_GROUPS = OTHER_GROUPS.filter((g) => groupMd3Kickoff(g) >= KOR_MD3_KICKOFF)
 
+// 미입력 MD3를 0:0으로 채운 완료 가정 — 형제 경기를 null로 두면 부분 순위가 왜곡돼 상위팀 경기까지 결정전으로 잡힘.
+function completion(scores: ScoreMap): ScoreMap {
+  const out: ScoreMap = { ...scores }
+  for (const m of matchday3Matches()) if (out[m.id] == null) out[m.id] = { home: 0, away: 0 }
+  return out
+}
+
+// 3위 결정전 여부: 형제 경기는 완료 가정에 고정하고 이 경기만 0~MAX로 쓸어볼 때 조 색이 바뀌면 = 결정전.
+// 콜롬비아 vs 포르투갈(상위 2팀 경기)처럼 3위에 영향 없는 경기는 색이 한 가지뿐 → 결정전 아님.
+function isDecider(base: ScoreMap, m: GroupMatch, kor: Stat): boolean {
+  const colors = new Set<BingoColor>()
+  for (let h = 0; h <= SCORELINE_MAX && colors.size < 2; h++)
+    for (let a = 0; a <= SCORELINE_MAX && colors.size < 2; a++)
+      colors.add(colorVsKor(groupThird({ ...base, [m.id]: { home: h, away: a } }, m.groupId), kor))
+  return colors.size > 1
+}
+
+// 'none' = 빙고와 무관한 경기(테두리·라벨 없이 순위변동 glow만). 'kor' = 우리 조 경기.
+export type MatchColor = BingoColor | 'kor' | 'none'
 export interface ScenarioAnalysis {
   kor: { overall: number; qualified: boolean } | null
-  bingo: BingoResult // 9개 빙고조(D~L)의 유리/불리/미정 램프
+  bingo: BingoResult
+  matchColor: Record<string, MatchColor> // MD3 경기 id → 그 조의 색(kor = 우리 조 경기)
 }
 
 // 같은 scores 참조면 재사용(보드·패널이 동일 객체로 각각 호출해도 1회만 계산).
@@ -117,11 +137,21 @@ export function analyzeScenario(scores: ScoreMap): ScenarioAnalysis {
 function computeScenario(scores: ScoreMap): ScenarioAnalysis {
   const kor = projectKorRank(scores)
   const korStat = korLine(scores)
-  const cells = BINGO_GROUPS.map((g) => ({ groupId: g, color: groupColor(scores, g, korStat) }))
+  // 우리 조 외 모든 조 색을 1회 계산 — 빙고 램프는 9개조(BINGO_GROUPS)만, 카드 라벨은 B·C 포함 전부에 붙인다.
+  const colorByGroup = new Map(OTHER_GROUPS.map((g) => [g, groupColor(scores, g, korStat)]))
+  const cells = BINGO_GROUPS.map((g) => ({ groupId: g, color: colorByGroup.get(g)! }))
   const bingo: BingoResult = {
     cells,
     fav: cells.filter((c) => c.color === 'fav').length,
     unfav: cells.filter((c) => c.color === 'unfav').length,
   }
-  return { kor: kor && { overall: kor.overall, qualified: kor.qualified }, bingo }
+  // 라벨/테두리는 9개 빙고조의 '3위 결정전' 경기에만. 나머지(우리 조 제외 B·C·결정전 아닌 경기)는 none=플레인.
+  const base = completion(scores)
+  const matchColor: Record<string, MatchColor> = {}
+  for (const m of matchday3Matches()) {
+    if (m.groupId === KOR_GROUP) matchColor[m.id] = 'kor'
+    else if (BINGO_GROUPS.includes(m.groupId) && isDecider(base, m, korStat)) matchColor[m.id] = colorByGroup.get(m.groupId)!
+    else matchColor[m.id] = 'none'
+  }
+  return { kor: kor && { overall: kor.overall, qualified: kor.qualified }, bingo, matchColor }
 }
