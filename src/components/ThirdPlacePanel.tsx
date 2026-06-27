@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useSimulator } from '@/store/useSimulator'
 import { selectQualificationRanking } from '@/store/selectors'
-import { analyzeScenario, SCENARIO_TEAM } from '@/lib/king'
+import { analyzeScenario, matchday3Matches, SCENARIO_TEAM } from '@/lib/king'
 import type { QualEntry } from '@/lib/standings'
 import type { ScoreMap } from '@/types'
 import { teamFlag, teamAbbr, teamName } from '@/lib/teams'
@@ -116,6 +116,32 @@ function KorPill({ scores: scoresProp }: { scores?: ScoreMap }) {
   )
 }
 
+// 9개 관여 경기(=빙고)의 충족/미충족을 동그란 뱃지로. 캡션 "대한민국 32강 빙고".
+function BingoBadges({ scores }: { scores?: ScoreMap }) {
+  const { t } = useT()
+  const store = useSimulator((s) => s.scores)
+  const a = useMemo(() => analyzeScenario(scores ?? store), [scores, store])
+  const cells = useMemo(() => matchday3Matches().filter((m) => a.matches[m.id]?.related), [a])
+  if (!cells.length) return null
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <span className="text-xs font-bold">🇰🇷 {t('bingoCaption')}</span>
+      <div className="flex gap-1">
+        {cells.map((m) => (
+          <span
+            key={m.id}
+            className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
+              a.matches[m.id].favorableNow ? 'bg-primary text-primary-foreground' : 'border border-border text-transparent'
+            }`}
+          >
+            ✓
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function QualPanelBody({ korFocus, scores: scoresProp }: { korFocus?: boolean; scores?: ScoreMap } = {}) {
   const { t } = useT()
   const storeScores = useSimulator((s) => s.scores)
@@ -130,7 +156,16 @@ export function QualPanelBody({ korFocus, scores: scoresProp }: { korFocus?: boo
 
   return (
     <div>
-      {korFocus ? <KorHeadline scores={scores} /> : <h2 className="mb-3 text-lg font-bold tracking-tight">{t('qualStatus')}</h2>}
+      {korFocus ? (
+        <>
+          <div className="mb-3">
+            <BingoBadges scores={scores} />
+          </div>
+          <KorHeadline scores={scores} />
+        </>
+      ) : (
+        <h2 className="mb-3 text-lg font-bold tracking-tight">{t('qualStatus')}</h2>
+      )}
 
       {/* 위쪽: 1~24위(진출 확정) 더보기 */}
       <Toggle open={expandedTop} onClick={() => setExpandedTop((v) => !v)} more="showRanksMore" less="showRanksLess" suffix="confirmedSuffix" dir="up" />
@@ -252,7 +287,12 @@ export function QualMorphBar({
         )}
       </AnimatePresence>
 
-      <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-3">
+      <div className="fixed inset-x-0 bottom-4 z-50 flex flex-col items-center gap-2 px-3">
+        {korFocus && !open && (
+          <div className="rounded-2xl border bg-background/95 px-4 py-2 shadow-lg backdrop-blur">
+            <BingoBadges scores={scores} />
+          </div>
+        )}
         <motion.div
           layout
           role={open ? 'dialog' : undefined}

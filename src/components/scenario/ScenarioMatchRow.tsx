@@ -30,6 +30,7 @@ export function ScenarioMatchRow({
   const update = (home: number, away: number) => onScore(match.id, { home: Math.max(0, home), away: Math.max(0, away) })
 
   const pivotal = analysis.condition != null
+  const locked = match.played // 이미 진행된 경기 → 조작불가 + dim
   const conditionText = analysis.condition ? formatFavorable(analysis.condition, match.homeId, match.awayId, locale) : null
 
   return (
@@ -38,8 +39,8 @@ export function ScenarioMatchRow({
       animate={{ boxShadow: flash === 'up' ? SHADOW_UP : flash === 'down' ? SHADOW_DOWN : SHADOW_NONE }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
       className={`relative rounded-xl p-3 transition-colors ${
-        pivotal ? 'border-2 border-primary bg-primary/[0.06]' : 'border'
-      } ${filled ? '' : 'opacity-70'}`}
+        pivotal ? 'border-2 border-primary bg-primary/[0.06]' : filled ? 'border border-foreground/30' : 'border'
+      } ${locked ? 'opacity-60' : ''}`}
     >
       <AnimatePresence>
         {flash && (
@@ -54,7 +55,7 @@ export function ScenarioMatchRow({
           </motion.span>
         )}
       </AnimatePresence>
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-base">
+      <div className={`grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-base ${locked ? 'pointer-events-none' : ''}`}>
         <button
           type="button"
           onClick={() => update(h + 1, a)}
