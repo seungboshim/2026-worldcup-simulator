@@ -29,18 +29,19 @@ export function ScenarioMatchRow({
   const update = (home: number, away: number) => onScore(match.id, { home: Math.max(0, home), away: Math.max(0, away) })
 
   const locked = match.played // 이미 진행된 경기 → 조작불가 + dim
-  // 우리 조(kor) 경기 외에는 모두 32강 빙고에 관여(조 3위 경합). pending = 예측이 가르는 변수.
-  const live = color === 'pending' && !locked // 예측에 따라 KOR 순위가 갈리는 라이브 변수
+  // fav/unfav/pending = 9개 빙고조의 3위 결정전만. live = 예측이 가르는 변수(pending & 미진행).
+  const live = color === 'pending' && !locked
+  const plain = filled ? 'border border-foreground/30' : 'border'
   const border =
     color === 'fav'
       ? 'border-2 border-primary bg-primary/[0.06]'
       : color === 'unfav'
         ? 'border-2 border-red-500/60 bg-red-500/[0.05]'
-        : live
-          ? 'border-2 border-amber-400/70 bg-amber-400/[0.06]'
-          : filled
-            ? 'border border-foreground/30'
-            : 'border'
+        : color === 'pending'
+          ? live
+            ? 'border-2 border-amber-400/70 bg-amber-400/[0.06]'
+            : 'border-2 border-amber-400/40'
+          : plain // 'none' · 'kor' → 빙고 무관, 플레인(순위변동 glow만)
 
   return (
     <motion.div
@@ -104,6 +105,7 @@ export function ScenarioMatchRow({
 
 function ColorTag({ color, live }: { color: MatchColor; live: boolean }) {
   const { t } = useT()
+  if (color === 'none') return null // 빙고 무관 경기 → 라벨 없음(순위변동 glow만)
   if (color === 'kor') return <div className="mt-1.5 text-xs text-muted-foreground/70">🇰🇷 {t('bingoKorMatch')}</div>
   const cls =
     color === 'fav'
