@@ -17,13 +17,13 @@ it('projectKorRank: 실제 데이터에서 KOR 종합순위 1..48', () => {
   expect(SCENARIO_TEAM).toBe('KOR')
 })
 
-it('빙고: 우리 조 제외 11개조 3위 vs KOR, 색은 유리/불리/미정', () => {
+it('빙고: 9개조(D~L) — 우리 조 A와 확정 전 끝난 B·C 제외, 색은 유리/불리/미정', () => {
   const a = analyzeScenario(useSimulator.getState().scores)
-  expect(a.bingo.cells.length).toBe(11)
+  expect(a.bingo.cells.length).toBe(9)
+  expect(a.bingo.cells.map((c) => c.groupId).sort()).toEqual(['D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'])
   expect(a.bingo.cells.every((c) => ['fav', 'unfav', 'pending'].includes(c.color))).toBe(true)
   expect(a.bingo.fav).toBe(a.bingo.cells.filter((c) => c.color === 'fav').length)
   expect(a.bingo.unfav).toBe(a.bingo.cells.filter((c) => c.color === 'unfav').length)
-  expect(a.bingo.fav + a.bingo.unfav).toBeLessThanOrEqual(11)
 })
 
 it('빙고: 우리 조(A) 경기는 matchColor=kor, 나머지는 조 색과 일치', () => {

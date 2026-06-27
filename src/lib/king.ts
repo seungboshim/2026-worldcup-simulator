@@ -93,11 +93,12 @@ export interface BingoResult {
   unfav: number
 }
 const OTHER_GROUPS = GROUP_IDS.filter((g) => g !== KOR_GROUP)
-function buildBingo(scores: ScoreMap): BingoResult {
-  const kor = korLine(scores)
-  const cells = OTHER_GROUPS.map((g) => ({ groupId: g, color: groupColor(scores, g, kor) }))
-  return { cells, fav: cells.filter((c) => c.color === 'fav').length, unfav: cells.filter((c) => c.color === 'unfav').length }
-}
+// 빙고 = 9개조(D~L). 우리 조(A)와, KOR이 3위를 확정한 시점(A조 3차전 킥오프)보다 먼저 끝난 B·C는 제외.
+// B·C 3차전은 KOR 경기보다 일찍 시작·종료돼 확정 시점에 이미 결정(유리 1·불리 1 누적)됐다 →
+// 공식 '경우의 수' 인포그래픽도 9개만 센다. ISO UTC 문자열은 사전순=시간순이라 그대로 비교.
+const groupMd3Kickoff = (g: GroupId) => md3OfGroup(g)[0]?.utcDate ?? ''
+const KOR_MD3_KICKOFF = groupMd3Kickoff(KOR_GROUP)
+const BINGO_GROUPS = OTHER_GROUPS.filter((g) => groupMd3Kickoff(g) >= KOR_MD3_KICKOFF)
 
 export type MatchColor = BingoColor | 'kor'
 export interface ScenarioAnalysis {
@@ -117,9 +118,16 @@ export function analyzeScenario(scores: ScoreMap): ScenarioAnalysis {
 
 function computeScenario(scores: ScoreMap): ScenarioAnalysis {
   const kor = projectKorRank(scores)
-  const bingo = buildBingo(scores)
-  const byGroup = new Map(bingo.cells.map((c) => [c.groupId, c.color]))
+  const korStat = korLine(scores)
+  // 우리 조 외 모든 조 색을 1회 계산 — 빙고 램프는 9개조(BINGO_GROUPS)만, 카드 라벨은 B·C 포함 전부에 붙인다.
+  const colorByGroup = new Map(OTHER_GROUPS.map((g) => [g, groupColor(scores, g, korStat)]))
+  const cells = BINGO_GROUPS.map((g) => ({ groupId: g, color: colorByGroup.get(g)! }))
+  const bingo: BingoResult = {
+    cells,
+    fav: cells.filter((c) => c.color === 'fav').length,
+    unfav: cells.filter((c) => c.color === 'unfav').length,
+  }
   const matchColor: Record<string, MatchColor> = {}
-  for (const m of matchday3Matches()) matchColor[m.id] = m.groupId === KOR_GROUP ? 'kor' : byGroup.get(m.groupId) ?? 'pending'
+  for (const m of matchday3Matches()) matchColor[m.id] = m.groupId === KOR_GROUP ? 'kor' : colorByGroup.get(m.groupId) ?? 'pending'
   return { kor: kor && { overall: kor.overall, qualified: kor.qualified }, bingo, matchColor }
 }
