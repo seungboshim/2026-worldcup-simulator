@@ -984,9 +984,9 @@
       "groupId": "K",
       "homeId": "COL",
       "awayId": "POR",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null,
+      "played": true,
+      "defaultHome": 0,
+      "defaultAway": 0,
       "utcDate": "2026-06-27T23:30:00Z"
     },
     {
@@ -994,9 +994,9 @@
       "groupId": "K",
       "homeId": "COD",
       "awayId": "UZB",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null,
+      "played": true,
+      "defaultHome": 3,
+      "defaultAway": 1,
       "utcDate": "2026-06-27T23:30:00Z"
     },
     {
@@ -1044,9 +1044,9 @@
       "groupId": "L",
       "homeId": "PAN",
       "awayId": "ENG",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null,
+      "played": true,
+      "defaultHome": 0,
+      "defaultAway": 2,
       "utcDate": "2026-06-27T21:00:00Z"
     },
     {
@@ -1054,9 +1054,9 @@
       "groupId": "L",
       "homeId": "CRO",
       "awayId": "GHA",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null,
+      "played": true,
+      "defaultHome": 2,
+      "defaultAway": 1,
       "utcDate": "2026-06-27T21:00:00Z"
     }
   ],
