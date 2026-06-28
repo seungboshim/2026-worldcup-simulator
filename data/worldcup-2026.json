@@ -924,9 +924,9 @@
       "groupId": "J",
       "homeId": "ALG",
       "awayId": "AUT",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null,
+      "played": true,
+      "defaultHome": 3,
+      "defaultAway": 3,
       "utcDate": "2026-06-28T02:00:00Z"
     },
     {
@@ -934,9 +934,9 @@
       "groupId": "J",
       "homeId": "JOR",
       "awayId": "ARG",
-      "played": false,
-      "defaultHome": null,
-      "defaultAway": null,
+      "played": true,
+      "defaultHome": 1,
+      "defaultAway": 3,
       "utcDate": "2026-06-28T02:00:00Z"
     },
     {
